@@ -9,14 +9,22 @@
 
 #define WINDOWX 40
 #define WINDOWY 40+32
-//#define XRESOLUTION 340
+// a smaller resolution is needed for the emulator
+//#define XRESOLUTION 340  
 //#define YRESOLUTION 240
-#define XRESOLUTION 560
-#define YRESOLUTION 368
+// #define XRESOLUTION 560
+// #define YRESOLUTION 368
 
+// how much smaller than the resolution to make the window
+//#define SHRINK 40
+#define SHRINK 120
+
+// use back buffer to render to, at the cost of some performance
 #define USEOFFSCREEN
 
-void InitToolbox(void);
+// clear just the cube by writing over it
+// when unset clear the entire back buffer
+#define ERASECUBE
 
 void InitToolbox()
 {
@@ -30,6 +38,7 @@ void InitToolbox()
 	InitCursor();
 }
 
+// rotate the original cube to a new position
 void rotateCube(Vector3 *cube, Vector3 *rotatedCube, Vector3 *centre, float xangle, float yangle, float zangle)
 {
 	int i;
@@ -44,6 +53,7 @@ void rotateCube(Vector3 *cube, Vector3 *rotatedCube, Vector3 *centre, float xang
 	}
 }
 
+// render the cube
 void drawCube(Vector3 *rotatedCube, Boolean color)
 {
 	// front face
@@ -83,32 +93,29 @@ void drawCube(Vector3 *rotatedCube, Boolean color)
 	LineTo(rotatedCube[7].x, rotatedCube[7].y);
 }
 
-void cubeBounds(Vector3 *rotatedCube, RgnHandle rgn)
+// identify the region on screen that the cube is using
+void cubeBounds(Vector3 *cube, RgnHandle rgn)
 {
 	int i;
 	int left = 1000, right = 0, top = 1000, bottom = 0;
 
 	for (i = 0; i < 8; i++)
 	{
-		if (rotatedCube[i].x < left)
-			left = rotatedCube[i].x;
-		if (rotatedCube[i].x > right)
-			right = rotatedCube[i].x;
+		if (cube[i].x < left) left = cube[i].x;
+		if (cube[i].x > right) right = cube[i].x;
 			
-		if (rotatedCube[i].y < top)
-			top = rotatedCube[i].y;
-		if (rotatedCube[i].y > bottom)
-			bottom = rotatedCube[i].y;
+		if (cube[i].y < top) top = cube[i].y;
+		if (cube[i].y > bottom) bottom = cube[i].y;
 	}
 
-	SetRectRgn(rgn, left-10, top-10, right+10, bottom+10);
+	SetRectRgn(rgn, left-3, top-3, right+3, bottom+3);
 }
 
+// display the Ticks Per Frame (1 tick ~= 1/60 s)
 void writeTPF(char buffer[], unsigned char TPF)
 {
 	sprintf(buffer, "TPF: %hu", TPF);
 	CtoPstr(buffer);
-	ForeColor(blackColor);
 	MoveTo(7, 15);
 	DrawString((unsigned char *)buffer);
 }
@@ -116,19 +123,19 @@ void writeTPF(char buffer[], unsigned char TPF)
 
 void main()
 {
-	// window variables
+	// window & input variables
 	WindowPtr appWindow;
 	Rect windowRect;
 	Boolean running;
 	EventRecord myEvent;
+	char keyChar;
 
 	// graphics variables
 #ifdef USEOFFSCREEN
 	GDHandle onscreenDevice;
-	GWorldPtr onScreen, offScreen; //, mask;
-	PixMapHandle pixels; //, maskpixels;
-//	Rect tpfRect;
-	RgnHandle updateRgn, tpfRgn;
+	GWorldPtr onScreen, offScreen;
+	PixMapHandle pixels;
+	RgnHandle updateRgn, tpfRgn, fpuRgn;
 #endif
 
 	// cube variables
@@ -150,12 +157,26 @@ void main()
 
 	// benchmark variables
 	unsigned char TPF = 0; // ticks per frame
-	char buffer[100];
-	InitToolbox();
-	unsigned long int last;
+	char buffer[100]; // for displaying TPF
+	unsigned long int last; // time of last frame
 
-	SetRect(&windowRect, WINDOWX, WINDOWY, WINDOWX + XRESOLUTION, WINDOWY + YRESOLUTION);
-	appWindow = NewWindow(0L, &windowRect, "\pSpinning Cube Benchmark", true, movableDBoxProc, (WindowPtr)-1L, 1, 0);
+	// initialisation
+	InitToolbox();
+
+	// get current monitor resolution
+	windowRect = (*(GetGDevice()))->gdRect;
+	windowRect.top += SHRINK;
+	windowRect.bottom -= SHRINK;
+	windowRect.left += SHRINK;
+	windowRect.right -= SHRINK;
+
+	// create window, sized by windowRect in absolute screen coordinates
+//	SetRect(&windowRect, WINDOWX, WINDOWY,
+//		WINDOWX + XRESOLUTION, WINDOWY + YRESOLUTION);
+	appWindow = NewWindow(0L, &windowRect, "\pSpinning Cube Benchmark",
+		true, movableDBoxProc, (WindowPtr)-1L, 1, 0);
+		// 0 - auto assign memory, window size, window title, visible
+		// window type, put window in front, have close box, refCon
 	ShowWindow(appWindow); // bring to front
 	SetPort(appWindow);	   // make the window the quickdraw graphics target
 
@@ -171,15 +192,20 @@ void main()
 	pixels = GetGWorldPixMap(offScreen);
 	LockPixels(pixels);
 	
-//	NewGWorld(&mask, 1, &(appWindow->portRect), NULL, NULL, 0);
-//	maskpixels = GetGWorldPixMap(offScreen);
-//	LockPixels(maskpixels);
-	
-//	SetRect(&tpfRect, 0, 0, 80, 40); // for covering up old TPF
-
-tpfRgn = NewRgn();
+	// screen area where TPF is drawn
+	tpfRgn = NewRgn();
 	SetRectRgn(tpfRgn, 0, 0, 80, 40);
-	
+	// screen area where FPU is drawn 
+	updateRgn = NewRgn();
+	SetRectRgn(updateRgn, 0, YRESOLUTION-40, 80, YRESOLUTION);
+	// combine in tpfRgn
+	UnionRgn(tpfRgn, updateRgn, tpfRgn);
+	DisposeRgn(updateRgn); // dispose so we can reuse later
+
+	// make sure the back buffer is clearn
+	SetGWorld(offScreen, NULL);
+	EraseRect(&appWindow->portRect);
+	SetGWorld(onScreen, onscreenDevice);
 #endif
 
 	running = true;
@@ -199,6 +225,27 @@ tpfRgn = NewRgn();
 					}
 					break;
 
+				case keyDown:
+					keyChar = myEvent.message & charCodeMask;
+					switch (keyChar)
+					{
+						case 'q':
+						case 'Q':
+						case 0x1b: // escape
+							running = false;
+							break;
+
+						// uiojkl to control rotation speed? or rotation directly? (caps?)
+
+						// f filled sides
+
+						// r randomize rotation & speed
+
+						default:
+						 	break;
+					}
+					break;
+
 				default:
 					break;
 			}
@@ -211,65 +258,62 @@ tpfRgn = NewRgn();
 		if (xangle >= 360) xangle -= 360;
 		if (yangle >= 360) yangle -= 360;
 		if (zangle >= 360) zangle -= 360;
+#ifndef ERASECUBE
 		rotateCube(cube, rotatedCube, &centre, xangle, yangle, zangle);
+#endif
 
 		// render
 #ifdef USEOFFSCREEN
 		SetGWorld(offScreen, NULL);
 #endif
 		// erase the bound of port rect on the current port
+#ifndef ERASECUBE
 		EraseRect(&appWindow->portRect);
-//		EraseRect(&tpfRect);
+#else // erase just the pixels of the cube
+		// clear TPF/FPU
+		EraseRgn(tpfRgn);
+
+		// draw over old cube
+		ForeColor(whiteColor);
+		drawCube(rotatedCube, false);
+
+		// rotate & draw new cube
+		rotateCube(cube, rotatedCube, &centre, xangle, yangle, zangle);
+#endif
 		drawCube(rotatedCube, true);
-		writeTPF(buffer, TPF);
-		
+
+		// write TPF/FPU
 		ForeColor(blackColor);
+		writeTPF(buffer, TPF);		
 		MoveTo(7, YRESOLUTION - 7);
 		#if mc68881
 			DrawString("\pFPU");
 		#else
 			DrawString("\pNO FPU");
 		#endif
-		
-//		SetGWorld(mask, NULL);
-//		EraseRect(&appWindow->portRect);
-//		InvertRect(&tpfRect);
-//		drawCube(rotatedCube, false);
-
-updateRgn = NewRgn();
-//RectRgn(updateRgn, &tpfRect);
-cubeBounds(rotatedCube, updateRgn);
-UnionRgn(updateRgn, tpfRgn, updateRgn);
 
 		// copy back buffer to front, which will also trigger a display refresh
 #ifdef USEOFFSCREEN
+		// only update where the cube is
+		updateRgn = NewRgn();
+		cubeBounds(rotatedCube, updateRgn);
+		UnionRgn(updateRgn, tpfRgn, updateRgn);
+
 		SetGWorld(onScreen, onscreenDevice);
-//		EraseRect(&appWindow->portRect);
 		CopyBits(&(((GrafPtr)offScreen)->portBits),
 				 &(((GrafPtr)onScreen)->portBits),
 				 &(offScreen->portRect),
 				 &(onScreen->portRect),
 				 srcCopy, updateRgn);
-//				 srcCopy, NULL);
-//		CopyMask(&(((GrafPtr)offScreen)->portBits),
-//				 &(((GrafPtr)mask)->portBits),
-//				 &(((GrafPtr)onScreen)->portBits),
-//				 &(offScreen->portRect),
-//				 &(mask->portRect),
-//				 &(onScreen->portRect));
+				 
+		DisposeRgn(updateRgn);
 #endif
-
-
-DisposeRgn(updateRgn);
-
 		TPF = TickCount() - last;
 
 	} // while running
 
 #ifdef USEOFFSCREEN
 	DisposeRgn(tpfRgn);
-//	UnlockPixels(maskpixels);
-//	DisposeGWorld(mask);
 	UnlockPixels(pixels);
 	DisposeGWorld(offScreen);
 #endif

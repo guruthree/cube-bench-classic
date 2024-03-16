@@ -2,7 +2,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2022,2024 guruthree, Blayzeing
+ * Copyright (c) 2022 guruthree, Blayzeing
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -50,7 +50,7 @@ struct Matrix3{
     static Matrix3 getRotationMatrix(float alpha, float beta, float gamma);
 
     // Gets a perspective scaling matrix, scaled along the z-axis
-    static Matrix3 getPerspMatrix(Vector3 surfacePos);
+    // static Matrix3 getPerspMatrix(Vector3 surfacePos);
 
     // Gets a camera transform matrix
     /*static Matrix3 getCameraMaterix(Vector3 cameraPosition,
@@ -124,12 +124,12 @@ Matrix3 Matrix3::getRotationMatrix(float alpha, float beta, float gamma)
     return Rz.multiply(Ry.multiply(Rx));
 }
 
-Matrix3 Matrix3::getPerspMatrix(Vector3 sp) {
+/*Matrix3 Matrix3::getPerspMatrix(Vector3 sp) {
     Matrix3 mat = {  1  ,  0  , sp.x/sp.z,
                      0  ,  1  , sp.y/sp.z,
                      0  ,  0  , 1.0f/sp.z};
     return mat;
-}
+}*/
 
 /*Matrix3 Matrix3::getCameraMatrix(Vector3 camPos, Vector3 camRot, float d)
 {

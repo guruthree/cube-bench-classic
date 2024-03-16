@@ -40,7 +40,7 @@ void rotateCube(Vector3 *cube, Vector3 *rotatedCube, Vector3 *centre, float xang
 	for (i = 0; i < 8; i++)
 	{
 		rotatedCube[i] = rot.preMultiply(cube[i]);
-		rotatedCube[i] = rotatedCube[i].add(*centre);
+		rotatedCube[i] = rotatedCube[i].add(*centre); // dereferenced
 		rotatedCube[i] = rotatedCube[i].scale(40.0f / (-rotatedCube[i].z / 8.0f + 40.0f));
 		rotatedCube[i].x = rotatedCube[i].x + xRes / 2;
 		rotatedCube[i].y = rotatedCube[i].y + yRes / 2;
@@ -87,111 +87,7 @@ void drawCube(Vector3 *rotatedCube, Boolean color)
 	LineTo(rotatedCube[7].x, rotatedCube[7].y);
 }
 
-// filled cube
-void solidCube(Vector3 *rotatedCube, Boolean color)
-{
-	PolyHandle poly;
-
-	// front face
-	if (color)
-	{
-		ForeColor(redColor);
-	}
-	poly = OpenPoly();
-	MoveTo(rotatedCube[0].x, rotatedCube[0].y);
-	LineTo(rotatedCube[1].x, rotatedCube[1].y);
-	LineTo(rotatedCube[2].x, rotatedCube[2].y);
-	LineTo(rotatedCube[3].x, rotatedCube[3].y);
-	LineTo(rotatedCube[0].x, rotatedCube[0].y);
-	ClosePoly();
-	PaintPoly(poly);
-	KillPoly(poly);
-
-	// back face
-	if (color)
-	{
-		ForeColor(blueColor);
-	}
-	poly = OpenPoly();
-	MoveTo(rotatedCube[4].x, rotatedCube[4].y);
-	LineTo(rotatedCube[5].x, rotatedCube[5].y);
-	LineTo(rotatedCube[6].x, rotatedCube[6].y);
-	LineTo(rotatedCube[7].x, rotatedCube[7].y);
-	LineTo(rotatedCube[4].x, rotatedCube[4].y);
-	ClosePoly();
-	PaintPoly(poly);
-	KillPoly(poly);
-	
-
-	// side face one
-	if (color)
-	{
-		ForeColor(greenColor);
-	}
-	poly = OpenPoly();
-	MoveTo(rotatedCube[0].x, rotatedCube[0].y);
-	LineTo(rotatedCube[4].x, rotatedCube[4].y);
-	LineTo(rotatedCube[5].x, rotatedCube[5].y);
-	LineTo(rotatedCube[1].x, rotatedCube[1].y);
-	LineTo(rotatedCube[0].x, rotatedCube[0].y);
-	ClosePoly();
-	PaintPoly(poly);
-	KillPoly(poly);
-	
-	// side face two
-	if (color)
-	{
-		ForeColor(magentaColor);
-	}
-	poly = OpenPoly();
-	MoveTo(rotatedCube[0].x, rotatedCube[0].y);
-	LineTo(rotatedCube[4].x, rotatedCube[4].y);
-	LineTo(rotatedCube[7].x, rotatedCube[7].y);
-	LineTo(rotatedCube[3].x, rotatedCube[3].y);
-	LineTo(rotatedCube[0].x, rotatedCube[0].y);	
-	ClosePoly();
-	PaintPoly(poly);
-	KillPoly(poly);
-	
-	// side face three
-	if (color)
-	{
-		ForeColor(cyanColor);
-	}
-	poly = OpenPoly();
-	MoveTo(rotatedCube[2].x, rotatedCube[2].y);
-	LineTo(rotatedCube[6].x, rotatedCube[6].y);
-	LineTo(rotatedCube[7].x, rotatedCube[7].y);
-	LineTo(rotatedCube[3].x, rotatedCube[3].y);
-	LineTo(rotatedCube[2].x, rotatedCube[2].y);
-	ClosePoly();
-	PaintPoly(poly);
-	KillPoly(poly);	
-	
-	// side face four
-	if (color)
-	{
-		ForeColor(yellowColor);
-	}
-	poly = OpenPoly();	
-	MoveTo(rotatedCube[2].x, rotatedCube[2].y);
-	LineTo(rotatedCube[6].x, rotatedCube[6].y);
-	LineTo(rotatedCube[5].x, rotatedCube[5].y);
-	LineTo(rotatedCube[1].x, rotatedCube[1].y);
-	LineTo(rotatedCube[2].x, rotatedCube[2].y);	
-	ClosePoly();
-	PaintPoly(poly);
-	KillPoly(poly);	
-}
-
-//	int frontFace[5] = {0, 1, 2, 3, 0};
-//	int backFace[5] = {4, 5, 6, 7, 4};
-//	int sideFaceOne[5] = {0, 4, 5, 1, 0};
-//	int sideFaceTwo[5] = {0, 4, 7, 3, 0};
-//	int sideFaceThree[5] = {2, 6, 7, 3, 2};
-//	int sideFaceFour[5] = {2, 6, 5, 1, 2};
-//	long colors[6] = {redColor, blueColor, greenColor, magentaColor, cyanColor, yellowColor};
-
+// filled face
 void solidFace(Vector3 *rotatedCube, int *verticies)
 {
 	int j;
@@ -206,33 +102,39 @@ void solidFace(Vector3 *rotatedCube, int *verticies)
 	KillPoly(poly);
 }
 
+// filled cube
 void solidCube2(Vector3 *rotatedCube, int faces[][5], Boolean color, long *colors)
 {
 	// we need to depth sort to try and get rendering right
 	// only need to draw the closest 3 sides?
 	int i, j;
-	// just need one vector3 to use for temp then reset?
-	Vector3 faceCenters[6] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+	// just need one vector3 to use for calculation, then store the result in averageDepths
+	Vector3 faceCenter;
 	float averageDepths[6] = {0, 0, 0, 0, 0, 0};
-	float indexes[6] = {0, 1, 2, 3, 4, 5};
+	int indexes[6] = {0, 1, 2, 3, 4, 5};
 	
 	for (i = 0; i < 6; i++)
 	{
+		faceCenter.x = 0;
+		faceCenter.y = 0;
+		faceCenter.z = 0;
 		for (j = 1; j < 5; j++)
 		{
-			faceCenters[i] = faceCenters[i].add(rotatedCube[faces[i][j]]);
+			faceCenter = faceCenter.add(rotatedCube[faces[i][j]]);
 		}
-		averageDepths[i] = faceCenters[i].scale(0.25).z;
+		averageDepths[i] = faceCenter.scale(0.25).z;
 	}
 	
-	for (i = 0; i < 6; i++)
+	bubbleSort(averageDepths, indexes, 6);
+
+// 	for (i = 0; i < 6; i++)
+	for (i = 3; i < 6; i++)
 	{
 		if (color)
 		{
-			ForeColor(colors[i]);
+			ForeColor(colors[indexes[i]]);
 		}
-		solidFace(rotatedCube, faces[i]);
-//		return;
+		solidFace(rotatedCube, faces[indexes[i]]);
 	}
 }
 
@@ -264,6 +166,15 @@ void writeTPF(char buffer[], unsigned char TPF)
 	DrawString((unsigned char *)buffer);
 }
 
+// set the size of cube by copying from base cube
+void sizeCube(Vector3 *baseCube, Vector3 *cube, float scale)
+{
+	int i;
+	for (i = 0; i < 8; i++)
+	{
+		cube[i] = baseCube[i].scale(scale);
+	}
+}
 
 void main()
 {
@@ -285,18 +196,19 @@ void main()
 
 	// cube variables
 	float size = 100;
+	int cubeCircleSize = size * 80.0f / (size/16.0f + 40.0f); // scale from rotateCube
 	float xangle = 30, yangle = 0, zangle = 45;
 	float dxangle = 0.01, dyangle = 0.005, dzangle = 0.01;
 	float olddxangle = dxangle, olddyangle = dyangle, olddzangle = dzangle;
-	Vector3 cube[8] = {
-		{-size / 2, -size / 2,  size / 2},
-		{ size / 2, -size / 2,  size / 2},
-		{ size / 2,  size / 2,  size / 2},
-		{-size / 2,  size / 2,  size / 2},
-		{-size / 2, -size / 2, -size / 2},
-		{ size / 2, -size / 2, -size / 2},
-		{ size / 2,  size / 2, -size / 2},
-		{-size / 2,  size / 2, -size / 2}};
+	Vector3 baseCube[8] = {
+		{-0.5f, -0.5f,  0.5f},
+		{ 0.5f, -0.5f,  0.5f},
+		{ 0.5f,  0.5f,  0.5f},
+		{-0.5f,  0.5f,  0.5f},
+		{-0.5f, -0.5f, -0.5f},
+		{ 0.5f, -0.5f, -0.5f},
+		{ 0.5f,  0.5f, -0.5f},
+		{-0.5f,  0.5f, -0.5f}};
 	int faces[6][5] = {
 		{0, 1, 2, 3, 0},
 		{4, 5, 6, 7, 4},
@@ -307,16 +219,54 @@ void main()
 	long colors[6] = {redColor, blueColor, greenColor, magentaColor, cyanColor, yellowColor};
 	int i;
 	Vector3 centre = {0, 0, 0};
-	Vector3 rotatedCube[8];
+	Vector3 cube[8], rotatedCube[8];
 	Boolean doSolid = false;
+	sizeCube(baseCube, cube, size);
 
 	// benchmark variables
 	unsigned char TPF = 0; // ticks per frame
-	char buffer[100]; // for displaying TPF
+	char buffer[20]; // for displaying TPF
 	unsigned long int last; // time of last frame
 
 	// initialisation
 	InitToolbox();
+	char FPUbuffer[20] = "";
+	long FPUtype;
+	if (noErr == Gestalt(gestaltFPUType, &FPUtype))
+	{
+		switch (FPUtype)
+		{
+			case gestaltNoFPU:
+				strcpy(FPUbuffer, "NO FPU");
+				break;
+				
+			case gestalt68881:
+				strcpy(FPUbuffer, "FPU 68881");
+				break;
+				
+			case gestalt68882:
+				strcpy(FPUbuffer, "FPU 68882");
+				break;
+			
+			case gestalt68040FPU:
+				strcpy(FPUbuffer, "FPU 68040");
+				break;
+				
+			default:
+				strcpy(FPUbuffer, "FPU ERR");
+				break;
+		}
+	}
+	else
+	{
+		strcpy(FPUbuffer, "FPU ERR");
+	}
+#if !mc68881
+	if (FPUbuffer[4] == '6')
+		strcat(FPUbuffer, " (DISABLED)");
+#endif
+	CtoPstr(FPUbuffer);
+	
 
 	// get current monitor resolution
 	windowRect = (*(GetGDevice()))->gdRect;
@@ -336,6 +286,11 @@ void main()
 		// window type, put window in front, have close box, refCon
 	ShowWindow(appWindow); // bring to front
 	SetPort(appWindow);	   // make the window the quickdraw graphics target
+	
+	// coloring stuff
+	long fgColor = blackColor;
+	long bgColor = whiteColor;
+	Boolean invertColor = false;
 
 #ifdef USEOFFSCREEN
 	// front buffer
@@ -357,7 +312,7 @@ void main()
 	SetRectRgn(updateRgn, 0, yRes-40, 80, yRes);
 	// combine in tpfRgn
 	UnionRgn(tpfRgn, updateRgn, tpfRgn);
-	DisposeRgn(updateRgn); // dispose so we can reuse later
+//	DisposeRgn(updateRgn); // dispose so we can reuse later
 
 	// make sure the back buffer is clear
 	SetGWorld(offScreen, NULL);
@@ -452,7 +407,27 @@ void main()
 							}
 							break;
 
-						// r randomize rotation & speed
+						// randomize rotation & speed
+						case 'r':
+						case 'R':
+							// TODO
+							break;
+						
+						// black background, white text
+						case 'b':
+							invertColor = !invertColor;
+							last = bgColor;
+							bgColor = fgColor;
+							fgColor = last;
+#ifdef USEOFFSCREEN
+		SetGWorld(offScreen, NULL);
+#endif
+							BackColor(bgColor);
+							ForeColor(fgColor); 
+#ifdef USEOFFSCREEN
+		SetGWorld(onScreen, onscreenDevice);
+#endif
+//							break;
 						
 						// erase buffer
 						case 'e':
@@ -477,7 +452,22 @@ void main()
 							doSolid = !doSolid;
 						 	break;
 						
-						// b black background, white text
+						// increase cube size
+						case '+':
+							// TODO
+							size += 10;
+							sizeCube(baseCube, cube, size);
+							cubeCircleSize = size * 80.0f / (size/16.0f + 40.0f);;
+							break;
+						// decrease cube size
+						case '-':
+							// TODO
+							if (size > 10) {
+								size -= 10;
+								sizeCube(baseCube, cube, size);
+								cubeCircleSize = size * 80.0f / (size/16.0f + 40.0f);
+							}
+							break;
 
 						default:
 						 	break;
@@ -511,11 +501,25 @@ void main()
 		// clear TPF/FPU
 #ifdef USEOFFSCREEN
 		EraseRgn(tpfRgn);
+//		updateRgn = NewRgn();
+//		if (doSolid)
+		// the cube will be somwhere in a circle of cubeCircleSize
+		SetRectRgn(updateRgn, xRes/2-cubeCircleSize, yRes/2-cubeCircleSize, xRes/2+cubeCircleSize, yRes/2+cubeCircleSize);
 #endif
 
 		// draw over old cube
-		ForeColor(whiteColor);
-		drawCube(rotatedCube, false);
+		if (!doSolid)
+		{
+			ForeColor(bgColor);
+			drawCube(rotatedCube, false);
+		}
+		else
+		{
+			// probably too expensive to draw precisely over
+			// draw a circle over the rotation area isntead
+			// EraseOval (but Rgn needs to be Rect?)
+			EraseRgn(updateRgn);
+		}
 
 		// rotate & draw new cube
 		rotateCube(cube, rotatedCube, &centre, xangle, yangle, zangle, xRes, yRes);
@@ -523,24 +527,24 @@ void main()
 		if (!doSolid)
 			drawCube(rotatedCube, true);
 		else
-//			solidCube(rotatedCube, true);
 			solidCube2(rotatedCube, faces, true, colors);
 
 		// write TPF/FPU
-		ForeColor(blackColor);
+		ForeColor(fgColor);
 		writeTPF(buffer, TPF);
 		MoveTo(7, yRes - 7);
-		#if mc68881
-			DrawString("\pFPU");
-		#else
-			DrawString("\pNO FPU");
-		#endif
+//		#if mc68881
+//			DrawString("\pFPU");
+//		#else
+//			DrawString("\pNO FPU");
+//		#endif
+		DrawString((unsigned char *)FPUbuffer);
 
 		// copy back buffer to front, which will also trigger a display refresh
 #ifdef USEOFFSCREEN
 		// only update where the cube is
-		updateRgn = NewRgn();
-		cubeBounds(rotatedCube, updateRgn);
+//		if (!doSolid)
+//			cubeBounds(rotatedCube, updateRgn);
 		UnionRgn(updateRgn, tpfRgn, updateRgn);
 
 		SetGWorld(onScreen, onscreenDevice);
@@ -550,7 +554,7 @@ void main()
 				 &(onScreen->portRect),
 				 srcCopy, updateRgn);
 				 
-		DisposeRgn(updateRgn);
+//		DisposeRgn(updateRgn);
 #endif
 		TPF = TickCount() - last;
 
@@ -558,6 +562,7 @@ void main()
 
 #ifdef USEOFFSCREEN
 	DisposeRgn(tpfRgn);
+	DisposeRgn(updateRgn);
 	UnlockPixels(pixels);
 	DisposeGWorld(offScreen);
 #endif

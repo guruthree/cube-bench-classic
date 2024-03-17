@@ -26,6 +26,9 @@
 
 // thanks to @Blayzeing for his help with this!
 
+
+#pragma once
+
 #ifndef VECTORMATH
 #define VECTORMATH
 
@@ -58,83 +61,5 @@ struct Matrix3{
                                     float surfaceDistanceIntoZ);*/
 };
 
-
-Matrix3 Matrix3::multiply(Matrix3 m)
-{
-    Matrix3 output = {m.ii*ii+m.ji*ij+m.ki*ik, m.ij*ii+m.jj*ij+m.kj*ik, m.ik*ii+m.jk*ij+m.kk*ik,
-                      m.ii*ji+m.ji*jj+m.ki*jk, m.ij*ji+m.jj*jj+m.kj*jk, m.ik*ji+m.jk*jj+m.kk*jk,
-                      m.ii*ki+m.ji*kj+m.ki*kk, m.ij*ki+m.jj*kj+m.kj*kk, m.ik*ki+m.jk*kj+m.kk*kk};
-    return output;
-}
-Vector3 Matrix3::preMultiply(Vector3 v)
-{
-    Vector3 output = {v.x*ii + v.y*ij + v.z*ik,
-                      v.x*ji + v.y*jj + v.z*jk,
-                      v.x*ki + v.y*kj + v.z*kk};
-    return output;
-}
-
-Vector3 Vector3::add(Vector3 v)
-{
-    Vector3 out = {x + v.x,
-                   y + v.y,
-                   z + v.z};
-    return out;
-}
-Vector3 Vector3::subtract(Vector3 v)
-{
-    Vector3 out = {x - v.x,
-                   y - v.y,
-                   z - v.z};
-    return out;
-}
-Vector3 Vector3::scale(float s)
-{
-    Vector3 out = {x * s,
-                   y * s,
-                   z * s};
-    return out;
-}
-Vector3 Vector3::scalarMultiply(Vector3 v)
-{
-    Vector3 out = {x * v.x,
-                   y * v.y,
-                   z * v.z};
-    return out;
-}
-float Vector3::dotProduct(Vector3 v)
-{
-    return x * v.x + y * v.y + z * v.z;
-}
-
-
-// rotation matrix, angles about rotate(x, y, z)
-// note angles are in RADIANS
-Matrix3 Matrix3::getRotationMatrix(float alpha, float beta, float gamma) 
-{
-    Matrix3 Rz = {cos(gamma), -sin(gamma), 0,
-                  sin(gamma),  cos(gamma), 0,
-                            0,            0, 1};
-    Matrix3 Ry = { cos(beta), 0, sin(beta),
-                            0, 1,          0,
-                  -sin(beta), 0, cos(beta)};
-    Matrix3 Rx = {  1,           0,            0,
-                    0, cos(alpha), -sin(alpha),
-                    0, sin(alpha),  cos(alpha)};
-    return Rz.multiply(Ry.multiply(Rx));
-}
-
-/*Matrix3 Matrix3::getPerspMatrix(Vector3 sp) {
-    Matrix3 mat = {  1  ,  0  , sp.x/sp.z,
-                     0  ,  1  , sp.y/sp.z,
-                     0  ,  0  , 1.0f/sp.z};
-    return mat;
-}*/
-
-/*Matrix3 Matrix3::getCameraMatrix(Vector3 camPos, Vector3 camRot, float d)
-{
-    // Rotate the world inversely around the camera position
-    Matrix3 invRot = rotate(camRot)
-}*/
 
 #endif

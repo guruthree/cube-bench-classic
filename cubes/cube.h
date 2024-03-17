@@ -1,6 +1,8 @@
 #include "vectormath2.h"
 #include "bubblesort.h"
 
+#pragma once
+
 #ifndef CUBE
 #define CUBE
 
@@ -9,8 +11,11 @@ class Cube
     private:
         // location
         Vector3 cube[8];
+        // centre of the cube in coordiante space
+	    Vector3 centre;
         // location in screen coordiantes
         Vector3 screenCube[8];
+        
         float size;
         int cubeCircleSize;
 
@@ -22,12 +27,11 @@ class Cube
         // colors of the faces
 	    static const long colors[6];
 	    
-        // rotation speed
-        float dxangle = 0.01;
-        float dyangle = 0.005;
-        float dzangle = 0.01;
+	    float dxangle;
+	    float dyangle;
+	    float dzangle;
 
-        void Cube(float size);
+        Cube(float size);
 
         void increaseSize();
 
@@ -41,7 +45,9 @@ class Cube
         void translate(Vector3 offset);
 
         // rotate the cube
-        void rotate();
+        void rotate(float dxangle, float dyangle, float dzangle);
+        
+        void autoRotate();
 
         // calculate where the cube is in screen space
         void preCalculate(int xRes, int yRes);
@@ -58,6 +64,9 @@ class Cube
 
         // identify the region on screen that the cube is using
         void bounds(RgnHandle rgn);
+        
+		// the cube will be somwhere in a circle of cubeCircleSize
+		void roughBounds(RgnHandle rgn, int xRes, int yRes);
 
 };
 

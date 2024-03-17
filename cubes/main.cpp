@@ -1,25 +1,23 @@
 // a lot of safety checks are _not_ being done
 
 #include <QDOffscreen.h>
-#include <math.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "vectormath2.h"
-#include "bubblesort.h"
 #include "cube.h"
+//#include "vectormath2.h"
 
 // how much smaller than the resolution to make the window
-#define SHRINK 40
+//#define SHRINK 40
 // a smaller resolution is needed for the emulator
-//#define SHRINK 160
+#define SHRINK 160
 
 // use back buffer to render to, at the cost of some performance
 #define USEOFFSCREEN
 
 // clear the entire/canvase back buffer 
 // (instead of just the cube by writing over it)
-#define ERASECANVAS
+//#define ERASECANVAS
 
 void InitToolbox()
 {
@@ -65,6 +63,7 @@ void main()
 
 	// cube variables
 	Cube myCube(100);
+	Boolean doRotate = true;
 	Boolean wireFrame = true;
 
 	// benchmark variables
@@ -188,66 +187,55 @@ void main()
 						case 'q':
 						case 'Q':
 						case 0x1b: // escape
+						case '\r': // carraige return (enter)
 							running = false;
 							break;
 
 						// uiojkl to control rotation
 						case 'j':
-							xangle -= 0.1;
+							myCube.rotate(-0.1,  0.0,  0.0);
 							break;
 						case 'l':
-							xangle += 0.1;
+							myCube.rotate( 0.1,  0.0,  0.0);
 							break;
 						case 'i':
-							yangle -= 0.1;
+							myCube.rotate( 0.0, -0.1,  0.0);
 							break;
 						case 'k':
-							yangle += 0.1;
+							myCube.rotate( 0.0, +0.1,  0.0);
 							break;
 						case 'u':
-							zangle -= 0.1;
+							myCube.rotate( 0.0,  0.0, -0.1);
 							break;
 						case 'o':
-							zangle += 0.1;
+							myCube.rotate( 0.0,  0.0, +0.1);
 							break;
 						
 						// UIOJKL to control rotation speed
 						case 'J':
-							dxangle -= 0.01;
+							myCube.dxangle -= 0.005f;
 							break;
 						case 'L':
-							dxangle += 0.01;
+							myCube.dxangle += 0.005f;
 							break;
 						case 'I':
-							dyangle -= 0.01;
+							myCube.dyangle -= 0.005f;
 							break;
 						case 'K':
-							dyangle += 0.01;
+							myCube.dyangle += 0.005f;
 							break;
 						case 'U':
-							dzangle -= 0.01;
+							myCube.dzangle -= 0.005f;
 							break;
 						case 'O':
-							dzangle += 0.01;
+							myCube.dzangle += 0.005f;
 							break;
 							
 						// stop auto rotation
 						case 's':
 						case 'S':
-						case ' ':
-							if (dxangle == 0 && dyangle == 0 && dzangle == 0) {
-								dxangle = olddxangle;
-								dyangle = olddyangle;
-								dzangle = olddzangle;
-							}
-							else {
-								olddxangle = dxangle;
-								olddyangle = dyangle;
-								olddzangle = dzangle;
-								dxangle = 0;
-								dyangle = 0;
-								dzangle = 0;
-							}
+						case ' ': // space
+							doRotate = !doRotate;
 							break;
 
 						// randomize rotation & speed
@@ -258,6 +246,7 @@ void main()
 						
 						// black background, white text
 						case 'b':
+						case 'B':
 							invertColor = !invertColor;
 							last = bgColor;
 							bgColor = fgColor;
@@ -337,7 +326,7 @@ void main()
 		{
 			// probably too expensive to draw precisely over the cube
 			// draw a circle (or close square) over the rotation area isntead
-			myCube.roughBounds(updateRgn);
+			myCube.roughBounds(updateRgn, xRes, yRes);
 			EraseRgn(updateRgn);
 			// could be EraseOval (if we got a Rect instead of a Rgn)
 			// or myCube.solidCibe(false);
@@ -345,7 +334,8 @@ void main()
 #endif
 
 		// rotate to new position
-		myCube.rotate();
+		if (doRotate)
+			myCube.autoRotate();
 		// pre-calculate for rendering
 		myCube.preCalculate(xRes, yRes);
 

@@ -1,16 +1,17 @@
 #include "vectormath2.h"
+#include "matrix.h"
 #include "bubblesort.h"
 #include "cube.h"
 
 const Vector3 Cube::verticies[8] = {
-    {-0.5f, -0.5f,  0.5f},
-    { 0.5f, -0.5f,  0.5f},
-    { 0.5f,  0.5f,  0.5f},
-    {-0.5f,  0.5f,  0.5f},
-    {-0.5f, -0.5f, -0.5f},
-    { 0.5f, -0.5f, -0.5f},
-    { 0.5f,  0.5f, -0.5f},
-    {-0.5f,  0.5f, -0.5f}};
+    Vector3(-0.5f, -0.5f,  0.5f),
+    Vector3( 0.5f, -0.5f,  0.5f),
+    Vector3( 0.5f,  0.5f,  0.5f),
+    Vector3(-0.5f,  0.5f,  0.5f),
+    Vector3(-0.5f, -0.5f, -0.5f),
+    Vector3( 0.5f, -0.5f, -0.5f),
+    Vector3( 0.5f,  0.5f, -0.5f),
+    Vector3(-0.5f,  0.5f, -0.5f)};
 
 
 const int Cube::faces[6][5] = {
@@ -33,11 +34,14 @@ Cube::Cube(float newSize)
     }
     centre.x = 0;
     centre.y = 0;
-    centre.z = 0;
+    centre.z = 10;
+    dangle.x = 0.01f;
+    dangle.y = 0.005f;
+    dangle.z = 0.01f;
+    velocity.x = 1;
+    velocity.y = 0.8;
+    velocity.z = 0; //-1; // +ve is closer to the screen
     size = 1;
-    dxangle = 0.01f;
-    dyangle = 0.005f;
-    dzangle = 0.01f;
     updateSize(newSize);
 }
 
@@ -56,7 +60,7 @@ void Cube::updateSize(float newSize)
 {
     scale(newSize / size);
     size = newSize;
-    cubeCircleSize = size * 80.0f / (size/16.0f + 40.0f); // from this->calculate()
+    cubeCircleSize = size * 80.0f / (size/16.0f + 40.0f); // from calculate()
 }
 
 // set the size of cube by copying from base cube
@@ -71,18 +75,19 @@ void Cube::scale(float scale)
 
 void Cube::translate(Vector3 offset)
 {
-    int i;
-    for (i = 0; i < 8; i++)
-    {
-        cube[i] = cube[i].add(offset);
-    }
+//    int i;
+//    for (i = 0; i < 8; i++)
+//    {
+//        cube[i] = cube[i].add(offset);
+//    }
+	centre = centre.add(offset);
 }
 
 // rotate the cube
-void Cube::rotate(float dxangle, float dyangle, float dzangle)
+void Cube::rotate(Vector3 dangle)
 {
     int i;
-    Matrix3 rot = Matrix3::getRotationMatrix(dxangle, dyangle, dzangle);
+    Matrix3 rot = Matrix3::getRotationMatrix(dangle);
     for (i = 0; i < 8; i++)
     {
         cube[i] = rot.preMultiply(cube[i]);
@@ -91,18 +96,28 @@ void Cube::rotate(float dxangle, float dyangle, float dzangle)
 
 void Cube::autoRotate()
 {
-    rotate(dxangle, dyangle, dzangle);
+    rotate(dangle);
+}
+
+void Cube::autoTranslate()
+{
+    translate(velocity);
 }
 
 // calculate where the cube is in screen space
 void Cube::preCalculate(int xRes, int yRes)
 {
     int i;
-    Matrix3 rot = Matrix3::getRotationMatrix(dxangle, dyangle, dzangle);
+    Matrix3 rot = Matrix3::getRotationMatrix(dangle);
     for (i = 0; i < 8; i++)
     {
-        screenCube[i] = cube[i].add(centre).scale(40.0f / 
-        	(-cube[i].z / 8.0f + 40.0f));
+        screenCube[i] = cube[i].add(centre);
+        screenCube[i] = screenCube[i].scale(1000.0f / (-screenCube[i].z + 1000.0f));
+//        screenCube[i] = screenCube[i].scale(2);
+        
+//        screenCube[i] = (cube[i].add(centre)).scale(40.0f / 
+ //       	(-cube[i].z / 50.0f + 40.0f));
+//        	(-cube[i].z / 8.0f + 40.0f));
         screenCube[i].x = screenCube[i].x + xRes / 2;
         screenCube[i].y = screenCube[i].y + yRes / 2;
     }
@@ -184,7 +199,8 @@ void Cube::solidCube(Boolean color)
         {
             faceCenter = faceCenter.add(screenCube[faces[i][j]]);
         }
-        averageDepths[i] = faceCenter.scale(0.25).z;
+//        averageDepths[i] = faceCenter.scale(0.25).z; // only works face on
+		averageDepths[i] = faceCenter.scale(0.25).z;
     }
     
     bubbleSort(averageDepths, indexes, 6);
@@ -200,22 +216,20 @@ void Cube::solidCube(Boolean color)
 }
 
 // identify the region on screen that the cube is using
-void Cube::bounds(RgnHandle rgn)
+void Cube::calculateBounds()
 {
     int i;
-    int left = 1000, right = 0, top = 1000, bottom = 0;
+    leftBound = 1000, rightBound = 0, upperBound = 1000, lowerBound = 0;
 
     for (i = 0; i < 8; i++)
     {
-        if (cube[i].x < left) left = cube[i].x;
-        if (cube[i].x > right) right = cube[i].x;
+        if (screenCube[i].x < leftBound) leftBound = screenCube[i].x;
+        if (screenCube[i].x > rightBound) rightBound = screenCube[i].x;
             
-        if (cube[i].y < top) top = cube[i].y;
-        if (cube[i].y > bottom) bottom = cube[i].y;
+        if (screenCube[i].y < upperBound) upperBound = screenCube[i].y;
+        if (screenCube[i].y > lowerBound) lowerBound = screenCube[i].y;
     }
 
-    // this isn't enough when the cube is spinning fast
-    SetRectRgn(rgn, left-3, top-3, right+3, bottom+3);
 }
 
 // the cube will be somwhere in a circle of cubeCircleSize
@@ -226,5 +240,8 @@ void Cube::roughBounds(RgnHandle rgn, int xRes, int yRes)
     	yRes/2-cubeCircleSize, 
     	xRes/2+cubeCircleSize, 
     	yRes/2+cubeCircleSize);
+
+    // a little padding for the cube is spinning fast?
+    //SetRectRgn(rgn, left-3, top-3, right+3, bottom+3);
 }
 

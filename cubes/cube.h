@@ -27,9 +27,13 @@ class Cube
         // colors of the faces
 	    static const long colors[6];
 	    
-	    float dxangle;
-	    float dyangle;
-	    float dzangle;
+        // velocity of spin
+	    Vector3 dangle;
+        // velocity of movement
+        Vector3 velocity;
+
+        // the edges of the bounding rectangle in screen space
+        int leftBound, rightBound, upperBound, lowerBound;
 
         Cube(float size);
 
@@ -45,9 +49,10 @@ class Cube
         void translate(Vector3 offset);
 
         // rotate the cube
-        void rotate(float dxangle, float dyangle, float dzangle);
+        void rotate(Vector3 dangle);
         
         void autoRotate();
+        void autoTranslate();
 
         // calculate where the cube is in screen space
         void preCalculate(int xRes, int yRes);
@@ -63,7 +68,7 @@ class Cube
         void solidCube(Boolean color);
 
         // identify the region on screen that the cube is using
-        void bounds(RgnHandle rgn);
+        void calculateBounds();
         
 		// the cube will be somwhere in a circle of cubeCircleSize
 		void roughBounds(RgnHandle rgn, int xRes, int yRes);

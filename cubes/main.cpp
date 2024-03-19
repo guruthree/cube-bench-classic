@@ -17,7 +17,10 @@
 
 // clear the entire/canvase back buffer 
 // (instead of just the cube by writing over it)
-//#define ERASECANVAS
+#define ERASECANVAS
+
+// how many cubes we could be rendering
+#define NUM_CUBES 10
 
 void InitToolbox()
 {
@@ -62,8 +65,16 @@ void main()
 #endif
 
 	// cube variables
-	Cube myCube(100);
+//	Cube cube = myCube(100);
+	Cube *cubes[NUM_CUBES] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+	cubes[0] = new Cube(100);
+//	cubes[1] = new Cube(50);
+	// default cube for control
+	Cube *myCube = cubes[0];
+	Boolean activeCubes[NUM_CUBES] = {true, false, false, false, false, false, false, false, false, false};
+
 	Boolean doRotate = true;
+	Boolean doMove = false;
 	Boolean wireFrame = true;
 
 	// benchmark variables
@@ -193,49 +204,58 @@ void main()
 
 						// uiojkl to control rotation
 						case 'j':
-							myCube.rotate(-0.1,  0.0,  0.0);
+							myCube->rotate(Vector3(-0.1,  0.0,  0.0));
 							break;
 						case 'l':
-							myCube.rotate( 0.1,  0.0,  0.0);
+							myCube->rotate(Vector3( 0.1,  0.0,  0.0));
 							break;
 						case 'i':
-							myCube.rotate( 0.0, -0.1,  0.0);
+							myCube->rotate(Vector3( 0.0, -0.1,  0.0));
 							break;
 						case 'k':
-							myCube.rotate( 0.0, +0.1,  0.0);
+							myCube->rotate(Vector3( 0.0, +0.1,  0.0));
 							break;
 						case 'u':
-							myCube.rotate( 0.0,  0.0, -0.1);
+							myCube->rotate(Vector3( 0.0,  0.0, -0.1));
 							break;
 						case 'o':
-							myCube.rotate( 0.0,  0.0, +0.1);
+							myCube->rotate(Vector3( 0.0,  0.0, +0.1));
 							break;
 						
 						// UIOJKL to control rotation speed
 						case 'J':
-							myCube.dxangle -= 0.005f;
+							myCube->dangle.x -= 0.005f;
 							break;
 						case 'L':
-							myCube.dxangle += 0.005f;
+							myCube->dangle.x += 0.005f;
 							break;
 						case 'I':
-							myCube.dyangle -= 0.005f;
+							myCube->dangle.y -= 0.005f;
 							break;
 						case 'K':
-							myCube.dyangle += 0.005f;
+							myCube->dangle.y += 0.005f;
 							break;
 						case 'U':
-							myCube.dzangle -= 0.005f;
+							myCube->dangle.z -= 0.005f;
 							break;
 						case 'O':
-							myCube.dzangle += 0.005f;
+							myCube->dangle.z += 0.005f;
 							break;
+
+						// tfghry to move on screen
+						// TFGHRY to control movement speed
 							
-						// stop auto rotation
+						// stop/start auto rotation
 						case 's':
 						case 'S':
 						case ' ': // space
 							doRotate = !doRotate;
+							break;
+
+						// stop/start movement
+						case 'm':
+						case 'M':
+							doMove = !doMove;
 							break;
 
 						// randomize rotation & speed
@@ -286,11 +306,42 @@ void main()
 						
 						// increase cube size
 						case '+':
-							myCube.increaseSize();
+							myCube->increaseSize();
 							break;
 						// decrease cube size
 						case '-':
-							myCube.decreaseSize();
+							myCube->decreaseSize();
+							break;
+
+						// activate a cube on keypress
+						case '1':
+						case '2':
+						case '3':
+						case '4':
+						case '5':
+						case '6':
+						case '7':
+						case '8':
+						case '9':
+						case '0':
+							keyChar -= 48; // go from char to int
+							if (keyChar == 0) // I want 0 to be 10
+							{
+								keyChar = 10;
+							}
+							keyChar--; // a '1' press should now be 0
+							if (keyChar > NUM_CUBES)
+								break; // safety
+							if (cubes[keyChar] == NULL && !activeCubes[keyChar])
+							{
+								// cube is not currently active, make it so
+								cubes[keyChar] = new Cube(20);
+								activeCubes[keyChar] = true;
+							}
+							else
+								activeCubes[keyChar] = !activeCubes[keyChar];
+							if (activeCubes[keyChar])
+								myCube = cubes[keyChar];
 							break;
 
 						default:
@@ -320,29 +371,76 @@ void main()
 		if (wireFrame)
 		{
 			ForeColor(bgColor);
-			myCube.draw(false);
+			myCube->draw(false);
 		}
 		else
 		{
 			// probably too expensive to draw precisely over the cube
 			// draw a circle (or close square) over the rotation area isntead
-			myCube.roughBounds(updateRgn, xRes, yRes);
+			myCube->roughBounds(updateRgn, xRes, yRes);
 			EraseRgn(updateRgn);
 			// could be EraseOval (if we got a Rect instead of a Rgn)
-			// or myCube.solidCibe(false);
+			// or myCube->solidCibe(false);
 		}
 #endif
 
-		// rotate to new position
+/*		// rotate to new position
 		if (doRotate)
-			myCube.autoRotate();
+			myCube->autoRotate();
+		// move to new position
+		if (doMove)
+			myCube->autoTranslate();
 		// pre-calculate for rendering
-		myCube.preCalculate(xRes, yRes);
+		myCube->preCalculate(xRes, yRes);
 
 		if (wireFrame)
-			myCube.draw(true);
+			myCube->draw(true);
 		else
-			myCube.solidCube(true);
+			myCube->solidCube(true);*/
+
+		for (i = 0; i < NUM_CUBES; i++)
+		{
+			if (activeCubes[i])
+			{
+				// rotate to new position
+				if (doRotate)
+					cubes[i]->autoRotate();
+				// move to new position
+				if (doMove)
+				{
+					cubes[i]->autoTranslate();
+				}
+				// pre-calculate for rendering
+				cubes[i]->preCalculate(xRes, yRes);
+				if (doMove)
+				{				
+					// reflection off the edges of the screen
+					cubes[i]->calculateBounds();
+					if (cubes[i]->leftBound <= 0 && cubes[i]->velocity.x < 0)
+					{
+						cubes[i]->velocity.x *= -1;
+					}
+					else if (cubes[i]->rightBound >= xRes && cubes[i]->velocity.x > 0)
+					{
+						cubes[i]->velocity.x *= -1;
+					}
+					
+					if (cubes[i]->upperBound <= 0 && cubes[i]->velocity.y < 0)
+					{
+						cubes[i]->velocity.y *= -1;
+					}
+					else if (cubes[i]->lowerBound >= yRes && cubes[i]->velocity.y > 0)
+					{
+						cubes[i]->velocity.y *= -1;
+					}
+				}
+
+				if (wireFrame)
+					cubes[i]->draw(true);
+				else
+					cubes[i]->solidCube(true);
+			}
+		}
 
 		// write TPF/FPU
 		ForeColor(fgColor);
@@ -354,7 +452,7 @@ void main()
 #ifdef USEOFFSCREEN
 		// only update where the cube is
 //		if (wireFrame)
-//			myCube.bounds(rotatedCube, updateRgn);
+//			myCube->bounds(rotatedCube, updateRgn);
 		UnionRgn(updateRgn, tpfRgn, updateRgn);
 
 		SetGWorld(onScreen, onscreenDevice);
@@ -368,6 +466,15 @@ void main()
 		TPF = TickCount() - last;
 
 	} // while running
+
+	// get rid of any cubes we've created
+	for (i = 0; i < NUM_CUBES; i++)
+	{
+		if (cubes[i] != NULL)
+		{
+			delete cubes[i];
+		}
+	}
 
 #ifdef USEOFFSCREEN
 	DisposeRgn(tpfRgn);

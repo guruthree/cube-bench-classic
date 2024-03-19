@@ -2,7 +2,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2022 guruthree, Blayzeing
+ * Copyright (c) 2022,2024 guruthree, Blayzeing
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,8 +32,13 @@
 #ifndef VECTORMATH
 #define VECTORMATH
 
-struct Vector3 {
-    float x, y, z;
+class Vector3 {
+public:
+    float x;
+    float y;
+    float z;
+    Vector3() : x(0), y(0), z(0) {};
+    Vector3(float a, float b, float c) : x(a), y(b), z(c) {};
     Vector3 add(Vector3);
     Vector3 subtract(Vector3);
     Vector3 scale(float);
@@ -41,25 +46,6 @@ struct Vector3 {
     float dotProduct(Vector3);
 };
 
-struct Matrix3{
-    float ii, ij, ik,
-          ji, jj, jk,
-          ki, kj, kk;
-    
-    Matrix3 multiply(Matrix3);
-    Vector3 preMultiply(Vector3);
-
-    // Gets a rotation matrix
-    static Matrix3 getRotationMatrix(float alpha, float beta, float gamma);
-
-    // Gets a perspective scaling matrix, scaled along the z-axis
-    // static Matrix3 getPerspMatrix(Vector3 surfacePos);
-
-    // Gets a camera transform matrix
-    /*static Matrix3 getCameraMaterix(Vector3 cameraPosition,
-                                    Vector3 cameraRotation,
-                                    float surfaceDistanceIntoZ);*/
-};
 
 
 #endif

@@ -26,49 +26,36 @@
 
 // thanks to @Blayzeing for his help with this!
 
+#include <math.h>
 
 #include "vectormath2.h"
 
+#pragma once
 
-//Vector3::Vector3(float a, float b, float c)
-//Vector3::Vector3()
-//{
-//x = 0; y = 0; z = 0;
-//	x = a;
-//	y = b;
-//	z = c;
-//}
+#ifndef MATRIXMATH
+#define MATRIXMATH
 
-Vector3 Vector3::add(Vector3 v)
-{
-    return Vector3(x + v.x,
-                   y + v.y,
-                   z + v.z);
-}
+struct Matrix3{
+    float ii, ij, ik,
+          ji, jj, jk,
+          ki, kj, kk;
+    
+    Matrix3 multiply(Matrix3);
+    Vector3 preMultiply(Vector3);
 
-Vector3 Vector3::subtract(Vector3 v)
-{
-    return Vector3(x - v.x,
-                   y - v.y,
-                   z - v.z);
-}
+    // Gets a rotation matrix
+    static Matrix3 getRotationMatrix(float alpha, float beta, float gamma);
+    static Matrix3 getRotationMatrix(Vector3 angles);
 
-Vector3 Vector3::scale(float s)
-{
-    return Vector3(x * s,
-                   y * s,
-                   z * s);
-}
+    // Gets a perspective scaling matrix, scaled along the z-axis
+    // static Matrix3 getPerspMatrix(Vector3 surfacePos);
 
-Vector3 Vector3::scalarMultiply(Vector3 v)
-{
-    return Vector3(x * v.x,
-                   y * v.y,
-                   z * v.z);
-}
+    // Gets a camera transform matrix
+    /*static Matrix3 getCameraMaterix(Vector3 cameraPosition,
+                                    Vector3 cameraRotation,
+                                    float surfaceDistanceIntoZ);*/
+};
 
-float Vector3::dotProduct(Vector3 v)
-{
-    return x * v.x + y * v.y + z * v.z;
-}
+#endif
+
 

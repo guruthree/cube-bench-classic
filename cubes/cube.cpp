@@ -34,13 +34,13 @@ Cube::Cube(float newSize)
     }
     centre.x = 0;
     centre.y = 0;
-    centre.z = 10;
+    centre.z = 0;
     dangle.x = 0.01f;
     dangle.y = 0.005f;
     dangle.z = 0.01f;
     velocity.x = 1;
     velocity.y = 0.8;
-    velocity.z = 0; //-1; // +ve is closer to the screen
+    velocity.z = 0.2; //-1; // +ve is closer to the screen
     size = 1;
     updateSize(newSize);
 }
@@ -60,7 +60,23 @@ void Cube::updateSize(float newSize)
 {
     scale(newSize / size);
     size = newSize;
-    cubeCircleSize = size * 80.0f / (size/16.0f + 40.0f); // from calculate()
+
+    // function of size and distance
+
+    // screenCube[i].scale(1000.0f / (-screenCube[i].z + 1000.0f));
+    // position 0,0,0
+    // ~168 px diameter from 100 cube size
+    // ~120 px diameter from 70 cube size
+    // ~80 px when it's at 0,0,-1000 from 100 cube size
+    // ~26 px when it's at 0,0,-5000 from 100 cube size
+    // ~331 px when it's at 0,0,500 from 100 cube size
+    // size * 2 in place of distance when it's at 0,0,0
+    // size*2 * (1000 / (1000 + size - distance)) ?
+    // not quite perfect, and worse when the object is bigger
+    
+    // 1000.0f is from calculate()
+//    cubeCircleSize = (size * 2) * (1000.0f / ((size * 2) + 1000.0f - centre.z));
+//    cubeCircleSize = size * 2000.0f / ((size * 2) + 1000.0f - centre.z);
 }
 
 // set the size of cube by copying from base cube
@@ -75,11 +91,6 @@ void Cube::scale(float scale)
 
 void Cube::translate(Vector3 offset)
 {
-//    int i;
-//    for (i = 0; i < 8; i++)
-//    {
-//        cube[i] = cube[i].add(offset);
-//    }
 	centre = centre.add(offset);
 }
 
@@ -112,12 +123,8 @@ void Cube::preCalculate(int xRes, int yRes)
     for (i = 0; i < 8; i++)
     {
         screenCube[i] = cube[i].add(centre);
+        // pretty sure the 1000 here means the screen is 1000 away
         screenCube[i] = screenCube[i].scale(1000.0f / (-screenCube[i].z + 1000.0f));
-//        screenCube[i] = screenCube[i].scale(2);
-        
-//        screenCube[i] = (cube[i].add(centre)).scale(40.0f / 
- //       	(-cube[i].z / 50.0f + 40.0f));
-//        	(-cube[i].z / 8.0f + 40.0f));
         screenCube[i].x = screenCube[i].x + xRes / 2;
         screenCube[i].y = screenCube[i].y + yRes / 2;
     }
@@ -179,14 +186,13 @@ void Cube::solidFace(int face)
 }
 
 // render the cube filled cube
-// void solidCube(Vector3 *rotatedCube, int faces[][5], Boolean color, long *colors)
 void Cube::solidCube(Boolean color)
 {
     // we need to depth sort to try and get rendering right
     // only need to draw the closest 3 sides?
     int i, j;
     // just need one vector3 to use for calculation, then store the result in averageDepths
-    Vector3 faceCenter;
+    Vector3 temp, faceCenter;
     float averageDepths[6] = {0, 0, 0, 0, 0, 0};
     int indexes[6] = {0, 1, 2, 3, 4, 5}; // the faces
     
@@ -199,13 +205,15 @@ void Cube::solidCube(Boolean color)
         {
             faceCenter = faceCenter.add(screenCube[faces[i][j]]);
         }
-//        averageDepths[i] = faceCenter.scale(0.25).z; // only works face on
+        
 		averageDepths[i] = faceCenter.scale(0.25).z;
     }
     
     bubbleSort(averageDepths, indexes, 6);
 
-    for (i = 3; i < 6; i++)
+	// technically only 3 are required straight on
+	// but if off axis rendering 4 faces is more robust
+    for (i = 2; i < 6; i++)
     {
         if (color)
         {
@@ -229,19 +237,23 @@ void Cube::calculateBounds()
         if (screenCube[i].y < upperBound) upperBound = screenCube[i].y;
         if (screenCube[i].y > lowerBound) lowerBound = screenCube[i].y;
     }
-
 }
 
 // the cube will be somwhere in a circle of cubeCircleSize
 void Cube::roughBounds(RgnHandle rgn, int xRes, int yRes)
 {
-    SetRectRgn(rgn,
-    	xRes/2-cubeCircleSize, 
-    	yRes/2-cubeCircleSize, 
-    	xRes/2+cubeCircleSize, 
-    	yRes/2+cubeCircleSize);
+//    SetRectRgn(rgn,
+//    	xRes/2-cubeCircleSize/2, 
+//    	yRes/2-cubeCircleSize/2, 
+//    	xRes/2+cubeCircleSize/2, 
+//    	yRes/2+cubeCircleSize/2);
 
     // a little padding for the cube is spinning fast?
-    //SetRectRgn(rgn, left-3, top-3, right+3, bottom+3);
+    SetRectRgn(rgn, leftBound, upperBound, rightBound, lowerBound);
 }
 
+
+float Cube::getZ()
+{
+	return centre.z;
+}

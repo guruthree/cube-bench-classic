@@ -17,7 +17,7 @@ class Cube
         Vector3 screenCube[8];
         
         float size;
-        int cubeCircleSize;
+//        int cubeCircleSize;
 
     public:
         // unit cube
@@ -72,6 +72,9 @@ class Cube
         
 		// the cube will be somwhere in a circle of cubeCircleSize
 		void roughBounds(RgnHandle rgn, int xRes, int yRes);
+		
+		// distance camera to cube
+		float getZ();
 
 };
 

@@ -6,6 +6,7 @@
 
 #include "cube.h"
 //#include "vectormath2.h"
+#include "bubblesort.h"
 
 // how much smaller than the resolution to make the window
 //#define SHRINK 40
@@ -17,7 +18,7 @@
 
 // clear the entire/canvase back buffer 
 // (instead of just the cube by writing over it)
-#define ERASECANVAS
+//#define ERASECANVAS
 
 // how many cubes we could be rendering
 #define NUM_CUBES 10
@@ -65,13 +66,14 @@ void main()
 #endif
 
 	// cube variables
-//	Cube cube = myCube(100);
 	Cube *cubes[NUM_CUBES] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+	Boolean activeCubes[NUM_CUBES] = {true, false, false, false, false, false, false, false, false, false};
 	cubes[0] = new Cube(100);
-//	cubes[1] = new Cube(50);
 	// default cube for control
 	Cube *myCube = cubes[0];
-	Boolean activeCubes[NUM_CUBES] = {true, false, false, false, false, false, false, false, false, false};
+	int cubeAt = 0;
+	float cubeDists[10];
+	int cubeIdx[10];
 
 	Boolean doRotate = true;
 	Boolean doMove = false;
@@ -368,35 +370,33 @@ void main()
 		EraseRgn(tpfRgn);
 		
 		// draw over old cube
-		if (wireFrame)
+		for (i = 0; i < NUM_CUBES; i++)
 		{
-			ForeColor(bgColor);
-			myCube->draw(false);
-		}
-		else
-		{
-			// probably too expensive to draw precisely over the cube
-			// draw a circle (or close square) over the rotation area isntead
-			myCube->roughBounds(updateRgn, xRes, yRes);
-			EraseRgn(updateRgn);
-			// could be EraseOval (if we got a Rect instead of a Rgn)
-			// or myCube->solidCibe(false);
+			if (activeCubes[i])
+			{
+				if (wireFrame)
+				{
+					ForeColor(bgColor);
+					cubes[i]->draw(false);
+				}
+				else
+				{
+					// probably too expensive to draw precisely over the cube
+					// draw a circle (or close square) over the rotation area isntead
+					if (!doMove)
+					{
+						// if cube isn't moving this hasn't been calculated yet
+						cubes[i]->calculateBounds();
+					}
+					cubes[i]->roughBounds(updateRgn, xRes, yRes);
+					EraseRgn(updateRgn);
+					// could be EraseOval (if we got a Rect instead of a Rgn)
+//					ForeColor(bgColor);
+//					cubes[i]->solidCube(false);
+				}
+			}
 		}
 #endif
-
-/*		// rotate to new position
-		if (doRotate)
-			myCube->autoRotate();
-		// move to new position
-		if (doMove)
-			myCube->autoTranslate();
-		// pre-calculate for rendering
-		myCube->preCalculate(xRes, yRes);
-
-		if (wireFrame)
-			myCube->draw(true);
-		else
-			myCube->solidCube(true);*/
 
 		for (i = 0; i < NUM_CUBES; i++)
 		{
@@ -433,14 +433,42 @@ void main()
 					{
 						cubes[i]->velocity.y *= -1;
 					}
+					
+					if (cubes[i]->getZ() > 100 && cubes[i]->velocity.z > 0)
+					{
+						cubes[i]->velocity.z *= -1;
+					}
+					else if (cubes[i]->getZ() < -400 && cubes[i]->velocity.z < 0)
+					{
+						cubes[i]->velocity.z *= -1;
+					}
 				}
 
 				if (wireFrame)
 					cubes[i]->draw(true);
 				else
-					cubes[i]->solidCube(true);
+				{
+//					cubes[i]->solidCube(true);
+					cubeDists[cubeAt] = cubes[i]->getZ();
+					cubeIdx[cubeAt] = i;
+					cubeAt++;
+				}
 			}
 		}
+		
+		// render the cubes in depth order
+		// depth sort of the cubes goes here
+		bubbleSort(cubeDists, cubeIdx, cubeAt);
+		for (i = 0; i < cubeAt; i++)
+		{
+			cubes[cubeIdx[i]]->solidCube(true);
+		}
+		
+		
+		cubeAt = 0;
+		
+		
+		
 
 		// write TPF/FPU
 		ForeColor(fgColor);
@@ -453,7 +481,7 @@ void main()
 		// only update where the cube is
 //		if (wireFrame)
 //			myCube->bounds(rotatedCube, updateRgn);
-		UnionRgn(updateRgn, tpfRgn, updateRgn);
+//		UnionRgn(updateRgn, tpfRgn, updateRgn);
 
 		SetGWorld(onScreen, onscreenDevice);
 		CopyBits(&(((GrafPtr)offScreen)->portBits),

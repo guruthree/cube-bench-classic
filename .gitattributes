@@ -1,0 +1,2 @@
+*.cpp text eol=cr
+*.h text eol=cr

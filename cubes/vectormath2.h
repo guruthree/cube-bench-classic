@@ -26,26 +26,24 @@
 
 // thanks to @Blayzeing for his help with this!
 
-
 #pragma once
 
 #ifndef VECTORMATH
 #define VECTORMATH
 
-class Vector3 {
+class Vector3
+{
 public:
-    float x;
-    float y;
-    float z;
-    Vector3() : x(0), y(0), z(0) {};
-    Vector3(float a, float b, float c) : x(a), y(b), z(c) {};
-    Vector3 add(Vector3);
-    Vector3 subtract(Vector3);
-    Vector3 scale(float);
-    Vector3 scalarMultiply(Vector3);
-    float dotProduct(Vector3);
+	float x;
+	float y;
+	float z;
+	Vector3() : x(0), y(0), z(0){};
+	Vector3(float a, float b, float c) : x(a), y(b), z(c){};
+	Vector3 add(Vector3);
+	Vector3 subtract(Vector3);
+	Vector3 scale(float);
+	Vector3 scalarMultiply(Vector3);
+	float dotProduct(Vector3);
 };
-
-
 
 #endif

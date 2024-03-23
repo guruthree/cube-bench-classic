@@ -35,27 +35,18 @@
 #ifndef MATRIXMATH
 #define MATRIXMATH
 
-struct Matrix3{
-    float ii, ij, ik,
-          ji, jj, jk,
-          ki, kj, kk;
-    
-    Matrix3 multiply(Matrix3);
-    Vector3 preMultiply(Vector3);
+struct Matrix3
+{
+	float ii, ij, ik,
+		ji, jj, jk,
+		ki, kj, kk;
 
-    // Gets a rotation matrix
-    static Matrix3 getRotationMatrix(float alpha, float beta, float gamma);
-    static Matrix3 getRotationMatrix(Vector3 angles);
+	Matrix3 multiply(Matrix3);
+	Vector3 preMultiply(Vector3);
 
-    // Gets a perspective scaling matrix, scaled along the z-axis
-    // static Matrix3 getPerspMatrix(Vector3 surfacePos);
-
-    // Gets a camera transform matrix
-    /*static Matrix3 getCameraMaterix(Vector3 cameraPosition,
-                                    Vector3 cameraRotation,
-                                    float surfaceDistanceIntoZ);*/
+	// Gets a rotation matrix
+	static Matrix3 getRotationMatrix(float alpha, float beta, float gamma);
+	static Matrix3 getRotationMatrix(Vector3 angles);
 };
 
 #endif
-
-

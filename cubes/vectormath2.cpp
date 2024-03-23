@@ -26,49 +26,37 @@
 
 // thanks to @Blayzeing for his help with this!
 
-
 #include "vectormath2.h"
-
-
-//Vector3::Vector3(float a, float b, float c)
-//Vector3::Vector3()
-//{
-//x = 0; y = 0; z = 0;
-//	x = a;
-//	y = b;
-//	z = c;
-//}
 
 Vector3 Vector3::add(Vector3 v)
 {
-    return Vector3(x + v.x,
-                   y + v.y,
-                   z + v.z);
+	return Vector3(x + v.x,
+				   y + v.y,
+				   z + v.z);
 }
 
 Vector3 Vector3::subtract(Vector3 v)
 {
-    return Vector3(x - v.x,
-                   y - v.y,
-                   z - v.z);
+	return Vector3(x - v.x,
+				   y - v.y,
+				   z - v.z);
 }
 
 Vector3 Vector3::scale(float s)
 {
-    return Vector3(x * s,
-                   y * s,
-                   z * s);
+	return Vector3(x * s,
+				   y * s,
+				   z * s);
 }
 
 Vector3 Vector3::scalarMultiply(Vector3 v)
 {
-    return Vector3(x * v.x,
-                   y * v.y,
-                   z * v.z);
+	return Vector3(x * v.x,
+				   y * v.y,
+				   z * v.z);
 }
 
 float Vector3::dotProduct(Vector3 v)
 {
-    return x * v.x + y * v.y + z * v.z;
+	return x * v.x + y * v.y + z * v.z;
 }
-

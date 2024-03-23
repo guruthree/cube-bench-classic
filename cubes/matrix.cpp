@@ -26,43 +26,41 @@
 
 // thanks to @Blayzeing for his help with this!
 
-
 #include "vectormath2.h"
 #include "matrix.h"
 
 Matrix3 Matrix3::multiply(Matrix3 m)
 {
-    Matrix3 output = {m.ii*ii+m.ji*ij+m.ki*ik, m.ij*ii+m.jj*ij+m.kj*ik, m.ik*ii+m.jk*ij+m.kk*ik,
-                      m.ii*ji+m.ji*jj+m.ki*jk, m.ij*ji+m.jj*jj+m.kj*jk, m.ik*ji+m.jk*jj+m.kk*jk,
-                      m.ii*ki+m.ji*kj+m.ki*kk, m.ij*ki+m.jj*kj+m.kj*kk, m.ik*ki+m.jk*kj+m.kk*kk};
-    return output;
+	Matrix3 output = {m.ii * ii + m.ji * ij + m.ki * ik, m.ij * ii + m.jj * ij + m.kj * ik, m.ik * ii + m.jk * ij + m.kk * ik,
+					  m.ii * ji + m.ji * jj + m.ki * jk, m.ij * ji + m.jj * jj + m.kj * jk, m.ik * ji + m.jk * jj + m.kk * jk,
+					  m.ii * ki + m.ji * kj + m.ki * kk, m.ij * ki + m.jj * kj + m.kj * kk, m.ik * ki + m.jk * kj + m.kk * kk};
+	return output;
 }
 
 Vector3 Matrix3::preMultiply(Vector3 v)
 {
-    return Vector3(v.x*ii + v.y*ij + v.z*ik,
-                      v.x*ji + v.y*jj + v.z*jk,
-                      v.x*ki + v.y*kj + v.z*kk);
+	return Vector3(v.x * ii + v.y * ij + v.z * ik,
+				   v.x * ji + v.y * jj + v.z * jk,
+				   v.x * ki + v.y * kj + v.z * kk);
 }
-
 
 // rotation matrix, angles about rotate(x, y, z)
 // note angles are in RADIANS
-Matrix3 Matrix3::getRotationMatrix(float alpha, float beta, float gamma) 
+Matrix3 Matrix3::getRotationMatrix(float alpha, float beta, float gamma)
 {
-    Matrix3 Rz = {cos(gamma), -sin(gamma), 0,
-                  sin(gamma),  cos(gamma), 0,
-                            0,            0, 1};
-    Matrix3 Ry = { cos(beta), 0, sin(beta),
-                            0, 1,          0,
-                  -sin(beta), 0, cos(beta)};
-    Matrix3 Rx = {  1,           0,            0,
-                    0, cos(alpha), -sin(alpha),
-                    0, sin(alpha),  cos(alpha)};
-    return Rz.multiply(Ry.multiply(Rx));
+	Matrix3 Rz = {cos(gamma), -sin(gamma), 0,
+				  sin(gamma), cos(gamma), 0,
+				  0, 0, 1};
+	Matrix3 Ry = {cos(beta), 0, sin(beta),
+				  0, 1, 0,
+				  -sin(beta), 0, cos(beta)};
+	Matrix3 Rx = {1, 0, 0,
+				  0, cos(alpha), -sin(alpha),
+				  0, sin(alpha), cos(alpha)};
+	return Rz.multiply(Ry.multiply(Rx));
 }
 
 Matrix3 Matrix3::getRotationMatrix(Vector3 angles)
 {
-    return Matrix3::getRotationMatrix(angles.x, angles.y, angles.z);
+	return Matrix3::getRotationMatrix(angles.x, angles.y, angles.z);
 }

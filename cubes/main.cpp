@@ -9,9 +9,9 @@
 #include "bubblesort.h"
 
 // how much smaller than the resolution to make the window
-// #define SHRINK 40
+#define SHRINK 40
 // a smaller resolution is needed for the emulator
-#define SHRINK 160
+// #define SHRINK 160
 
 // use back buffer to render to, at the cost of some performance
 #define USEOFFSCREEN
@@ -63,8 +63,8 @@ void main()
 	GDHandle onscreenDevice;
 	GWorldPtr onScreen, offScreen;
 	PixMapHandle pixels;
-	RgnHandle updateRgn, tpfRgn, cubeRgn;
 #endif
+	RgnHandle updateRgn, tpfRgn, cubeRgn;
 
 	// cube variables
 	Cube *cubes[NUM_CUBES] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
@@ -160,7 +160,14 @@ void main()
 		(*((*((*(GetGDevice()))->gdPMap))->pmTable))->ctSeed;
 	// get memory of back buffer & lock to keep from being destroyed
 	pixels = GetGWorldPixMap(offScreen);
+	NoPurgePixels(pixels);
 	LockPixels(pixels);
+
+	// make sure the back buffer is clear
+	SetGWorld(offScreen, NULL);
+	EraseRect(&appWindow->portRect);
+	SetGWorld(onScreen, onscreenDevice);
+#endif
 
 	// screen area where TPF is drawn
 	tpfRgn = NewRgn();
@@ -171,12 +178,6 @@ void main()
 	// combine in tpfRgn
 	UnionRgn(tpfRgn, updateRgn, tpfRgn);
 	cubeRgn = NewRgn(); // screen space with cubes in it
-
-	// make sure the back buffer is clear
-	SetGWorld(offScreen, NULL);
-	EraseRect(&appWindow->portRect);
-	SetGWorld(onScreen, onscreenDevice);
-#endif
 
 	running = true;
 	while (running == true)

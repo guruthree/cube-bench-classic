@@ -77,7 +77,7 @@ public:
 	// convert bounds to Region, the cube will be somwhere within
 	void roughBounds(RgnHandle rgn, int xRes, int yRes);
 
-	// distance from the camera to cube
+	// z-coordinate of the cube (1000-z) is the distance away from the camera
 	float getZ();
 };
 

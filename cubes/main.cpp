@@ -382,7 +382,7 @@ void main()
 					if (cubes[keyChar] == NULL && !activeCubes[keyChar])
 					{
 						// cube is not currently active, make it so
-						cubes[keyChar] = new Cube(20);
+						cubes[keyChar] = new Cube(50);
 						activeCubes[keyChar] = true;
 					}
 					else
@@ -484,7 +484,7 @@ void main()
 					{
 						cubes[i]->velocity.z *= -1;
 					}
-					else if (cubes[i]->getZ() < -400 && cubes[i]->velocity.z < 0)
+					else if (cubes[i]->getZ() < -1000 && cubes[i]->velocity.z < 0)
 					{
 						cubes[i]->velocity.z *= -1;
 					}

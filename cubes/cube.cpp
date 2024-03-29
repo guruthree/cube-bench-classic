@@ -193,17 +193,25 @@ void Cube::solidCube(Boolean color)
 		faceCenter.z = 0;
 		for (j = 1; j < 5; j++)
 		{
-			faceCenter = faceCenter.add(screenCube[faces[i][j]]);
+			// faceCenter = faceCenter.add(screenCube[faces[i][j]]);
+			faceCenter = faceCenter.add(cube[faces[i][j]]);
 		}
+		// averageDepths[i] = faceCenter.scale(0.25).z;
+		faceCenter = faceCenter.scale(0.25).add(centre);
 
-		averageDepths[i] = faceCenter.scale(0.25).z;
+		// distance between faceCenter location and camera location
+		// camera is at (0, 0, 1000)
+		averageDepths[i] = 1000 - faceCenter.z;
+		averageDepths[i] = faceCenter.x * faceCenter.x +
+						   faceCenter.y * faceCenter.y +
+						   averageDepths[i] * averageDepths[i];
 	}
 
 	bubbleSort(averageDepths, indexes, 6);
 
-	// technically only 3 are required straight on
-	// but if off axis rendering 4 faces is more robust
-	for (i = 2; i < 6; i++)
+	// technically only 3 are required straight on or if distances are perfect
+	// but if off axis rendering with a cludge 4 faces is more robust and 6 is best
+	for (i = 3; i < 6; i++)
 	{
 		if (color)
 		{

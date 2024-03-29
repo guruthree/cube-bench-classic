@@ -22,7 +22,7 @@ You may want to set Symantec C++ and THINK C options (Compiler Settings) to make
 
 ### Line endings
 
-Note that Classic Mac OS expects CR line endings. The .gitattributes should enforces these for source files, but note that `git diff` does not like them, so you may need to use another tool for comparing to previous revisions, e.g., [`meld`](http://meldmerge.org/). The [`dos2unix`](https://waterlan.home.xs4all.nl/dos2unix.html) can be used to change between line endings.
+Note that Classic Mac OS expects CR line endings. This repository currently is set to use CRLF line endings via .gitattributes so that files copied across are somewhat readable. For full readability they will need to be converted using the `dos2unix` and `unix2mac` tools from the [`dos2unix`](https://waterlan.home.xs4all.nl/dos2unix.html) package.
 
 ## Partition size
 

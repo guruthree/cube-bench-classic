@@ -10,8 +10,6 @@
 
 // how much smaller than the resolution to make the window
 #define SHRINK 40
-// a smaller resolution is needed for the emulator
-// #define SHRINK 160
 
 // use back buffer to render to, at the cost of some performance
 #define USEOFFSCREEN
@@ -48,7 +46,7 @@ void writeTPF(char buffer[], unsigned char TPF)
 void main()
 {
 	// for looping
-	int i;
+	int i, j;
 
 	// window & input variables
 	int xRes, yRes;
@@ -80,6 +78,7 @@ void main()
 	Boolean doMove = false;
 	Boolean wireFrame = true;
 	Boolean invertColor = false;
+	Boolean doBounce = false;
 
 	// benchmark variables
 	unsigned char TPF = 0;	// ticks per frame
@@ -201,8 +200,7 @@ void main()
 				switch (keyChar)
 				{
 				// quit
-				case 'q':
-				case 'Q':
+				case '`':  // back tick
 				case 0x1b: // escape
 				case '\r': // carraige return (enter)
 					running = false;
@@ -213,7 +211,7 @@ void main()
 					myCube->rotate(Vector3(-0.1, 0.0, 0.0));
 					break;
 				case 'l':
-					myCube->rotate(Vector3(0.1, 0.0, 0.0));
+					myCube->rotate(Vector3(+0.1, 0.0, 0.0));
 					break;
 				case 'i':
 					myCube->rotate(Vector3(0.0, -0.1, 0.0));
@@ -248,12 +246,49 @@ void main()
 					myCube->dangle.z += 0.005f;
 					break;
 
-				// tfghry to move on screen
-				// TFGHRY to control movement speed
+				// wasdqe to move on screen
+				case 'a':
+					myCube->translate(Vector3(-10, 0.0, 0.0));
+					break;
+				case 'd':
+					myCube->translate(Vector3(+10, 0.0, 0.0));
+					break;
+				case 'w':
+					myCube->translate(Vector3(0.0, -10, 0.0));
+					break;
+				case 's':
+					myCube->translate(Vector3(0.0, +10, 0.0));
+					break;
+				case 'q':
+					myCube->translate(Vector3(0.0, 0.0, -10));
+					break;
+				case 'e':
+					myCube->translate(Vector3(0.0, 0.0, +10));
+					break;
+
+				// WASDQE to control movement speed
+				case 'A':
+					myCube->velocity.x -= 0.1f;
+					break;
+				case 'D':
+					myCube->velocity.x += 0.1f;
+					break;
+				case 'W':
+					myCube->velocity.y -= 0.1f;
+					break;
+				case 'S':
+					myCube->velocity.y += 0.1f;
+					break;
+				case 'Q':
+					myCube->velocity.z -= 0.1f;
+					break;
+				case 'E':
+					myCube->velocity.z += 0.1f;
+					break;
 
 				// stop/start auto rotation
-				case 's':
-				case 'S':
+				case 'n':
+				case 'N':
 				case ' ': // space
 					doRotate = !doRotate;
 					break;
@@ -264,15 +299,21 @@ void main()
 					doMove = !doMove;
 					break;
 
+				// stop/start bounce collisions
+				case 'b':
+				case 'B':
+					doBounce = !doBounce;
+					break;
+
 				// randomize rotation & speed
 				case 'r':
 				case 'R':
 					// TODO
 					break;
 
-				// black background, white text
-				case 'b':
-				case 'B':
+				// black background, white text (invert)
+				case 'v':
+				case 'V':
 					invertColor = !invertColor;
 					last = bgColor;
 					bgColor = fgColor;
@@ -285,11 +326,11 @@ void main()
 #ifdef USEOFFSCREEN
 					SetGWorld(onScreen, onscreenDevice);
 #endif
-					//							break;
+					//	break;
 
-				// erase buffer
-				case 'e':
-				case 'E':
+				// erase (clear) buffer
+				case 'c':
+				case 'C':
 #ifdef USEOFFSCREEN
 					SetGWorld(offScreen, NULL);
 #endif
@@ -455,9 +496,29 @@ void main()
 				else
 				{
 					// prepare for depth sorting
-					cubeDists[cubeAt] = cubes[i]->getZ();
+					cubeDists[cubeAt] = 1000 - cubes[i]->getZ();
 					cubeIdx[cubeAt] = i;
 					cubeAt++;
+				}
+			}
+		}
+
+		if (doBounce)
+		{
+			for (i = 0; i < NUM_CUBES; i++)
+			{
+				for (j = i + 1; j < NUM_CUBES; j++)
+				{
+					if (activeCubes[i] && activeCubes[j])
+					{
+						// bounce if:
+						// cubes are close to each other
+						// cubes are headed towards each other
+						// based on screen coordinates
+						// inverting velocities
+
+						// TODO bounce code
+					}
 				}
 			}
 		}

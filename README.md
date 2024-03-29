@@ -41,3 +41,27 @@ At some point the h key will bring up on screen help.
 Tested under System 7.5.3 on an LC, LC II, LC II, LC 475, and BasiliskII 1.0.0_p20240224. Seems to crash in BasiliskII with a large window size for reasons unknown.
 
 Performance is displayed as TPF, or ticks per frame. One tick corresponds to one screen refresh, and so will be about 1/60th of a second for most people.
+
+### Key bindings
+
+| Key | Action                                    |
+| --- | ----------------------------------------- |
+| `   | Quit                                      |
+| ret | Quit                                      |
+| esc | Quit                                      |
+| j/l | -/+ x-rotate current cube                 |
+| i/k | -/+ y-rotate current cube                 |
+| u/o | -/+ z-rotate current cube                 |
+| J/L | -/+ x-rotation speed of current cube      |
+| I/K | -/+ y-rotation speed of current cube      |
+| U/O | -/+ z-rotation speed of current cube      |
+| n/N | Toggle rotation                           |
+| spc | Toggle rotation                           |
+| m/M | Toggle movement                           |
+| v/V | Toggle invert background colour           |
+| c/C | Erase canvas                              |
+| f/F | Toggle filled cube faces                  |
+| -/+ | -/+ (decrease/increase) current cube size |
+| num | select & toggle the current cube 1 to 10  |
+
+The default current cube is cube 1. Clicking outside the window will also quit.

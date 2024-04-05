@@ -1,7 +1,9 @@
 # cube-bench-classic
-A very simple benchmark involving a cube for Classic Mac OS System 7
+*A new benchmark for Classic Macintosh Computers*
 
-I wanted something a bit more relatable than a bar chart or flashing patterned rectangles to get a feel for performance between classic Macs (LC III, etc.). So for #Marchintosh 2024, I wrote my own benchmark with the classic bouncing cube(s). A relatable mix of floating point, regular computation, and QuickDraw calls.
+A very simple benchmark involving a cube for Classic Mac OS System 7.
+
+I wanted something a bit more relatable than a bar chart or flashing patterned rectangles to get a feel for performance differences between classic Macs (LC III, etc.). So for #Marchintosh 2024, I wrote my own benchmark with the classic bouncing cube(s). A relatable mix of floating point, regular computation, and QuickDraw calls.
 
 ![Screenshot of the benchmark](screenshot.png)
 
@@ -26,9 +28,9 @@ Note that Classic Mac OS expects CR line endings. This repository currently is s
 
 ## Partition size
 
-If your Mac has as resolution higher than 640x480 at 256 colours, you will need to increase the partition size in order to run the application. This can either be done using Get Info (⌘I) in the Finder and entering a larger Preferred size, or during compilation going to the Project menu, selecting Set Project Type..., and entering a larger value in the Partition (K) field.
+If your Mac has as resolution higher than 640x480 at 256 colours, you will need to increase the partition size in order to run the application. This can either be done using Get Info (⌘I) in the Finder and entering a larger 'Preferred size', or during compilation going to the 'Project' menu, selecting 'Set Project Type...', and entering a larger value in the 'Partition (K)' field.
 
-A 512 K partition size is large for 800x600 at 256 colors, which is as high as I can test on real hardware.
+A 512 K partition size is fine for 800x600 at 256 colors, which is as high as I can test on real hardware.
 
 ## Usage
 

@@ -34,11 +34,31 @@ void InitToolbox()
 	InitCursor();
 }
 
+// I couldn't get CtoPstr to work in Symantec C++ 8.6
+// So I'll do it myself
+void myCtoPstr(char buffer[])
+{
+	int c,l;
+	l = strlen(buffer);
+	if (buffer[0] == ' ')
+	{
+		// strings we left starting with a space we know we want to convert to p string
+		// so we can just overwrite the space with the digit count
+		buffer[0] = l;
+		return;
+	}
+	for (c = l; c > 0; c--)
+	{
+		buffer[c] = buffer[c-1];
+	}
+	buffer[0] = l;
+}
+
 // display the Ticks Per Frame (1 tick ~= 1/60 s)
 void writeTPF(char buffer[], unsigned char TPF)
 {
-	sprintf(buffer, "TPF: %hu", TPF);
-	CtoPstr(buffer);
+	sprintf(buffer, " TPF: %hu", TPF);
+	myCtoPstr(buffer);
 	MoveTo(7, 15);
 	DrawString((unsigned char *)buffer);
 }
@@ -92,43 +112,43 @@ void main()
 	InitToolbox();
 
 	// determine FPU info
-	char FPUbuffer[20] = "";
+	char FPUbuffer[24] = "";
 	long FPUtype;
 	if (noErr == Gestalt(gestaltFPUType, &FPUtype))
 	{
 		switch (FPUtype)
 		{
 		case gestaltNoFPU:
-			strcpy(FPUbuffer, "NO FPU");
+			strcpy(FPUbuffer, " NO FPU");
 			break;
 
 		case gestalt68881:
-			strcpy(FPUbuffer, "FPU 68881");
+			strcpy(FPUbuffer, " FPU 68881");
 			break;
 
 		case gestalt68882:
-			strcpy(FPUbuffer, "FPU 68882");
+			strcpy(FPUbuffer, " FPU 68882");
 			break;
 
 		case gestalt68040FPU:
-			strcpy(FPUbuffer, "FPU 68040");
+			strcpy(FPUbuffer, " FPU 68040");
 			break;
 
 		default:
-			strcpy(FPUbuffer, "FPU ERR");
+			strcpy(FPUbuffer, " FPU ERR");
 			break;
 		}
 	}
 	else
 	{
-		strcpy(FPUbuffer, "FPU ERR");
+		strcpy(FPUbuffer, " FPU ERR");
 	}
 #if !mc68881
 	// a 6XXXX FPU
-	if (FPUbuffer[4] == '6')
+	if (FPUbuffer[5] == '6')
 		strcat(FPUbuffer, " (DISABLED)");
 #endif
-	CtoPstr(FPUbuffer); // display functions expect P strings
+	myCtoPstr(FPUbuffer); // display functions expect P strings
 
 	// get current monitor resolution to dermine window size
 	windowRect = (*(GetGDevice()))->gdRect;

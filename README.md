@@ -22,6 +22,19 @@ You may want to set Symantec C++ and THINK C options (Compiler Settings) to make
 * Generate 68881 instructions
 * Use 881 for transcendental
 
+### Compilation with Symantec C++ 8.6
+
+The newer Symantec doesn't seem to be as nice to work with other than syntax highlighting. Compiling takes longer and library includes are a mess.
+That being said, to work in 8.6, create a new project of type C++ Mac Application (68k). Place the contents of cubes/ folder in with the π file, add the *.cpp files to the project, and then also add a few libraries:
+
+* 68Kpluslib.o (this should be there by default)
+* Interface.o (this should be there by default)
+* MPW68KRuntime.o (this should be there by default)
+* Mathlib (this should be there by default)
+* 68kansi.o
+
+You may wish to put this in a Libraries group.
+
 ### Line endings
 
 Note that Classic Mac OS expects CR line endings. This repository currently is set to use CRLF line endings via .gitattributes so that files copied across are somewhat readable. For full readability they will need to be converted using the `dos2unix` and `unix2mac` tools from the [`dos2unix`](https://waterlan.home.xs4all.nl/dos2unix.html) package.

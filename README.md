@@ -67,3 +67,9 @@ Performance is displayed as TPF, or ticks per frame. One tick corresponds to one
 | num | select & toggle the current cube 1 to 10  |
 
 The default current cube is cube 1. Clicking outside the window will also quit.
+
+### Known issues
+
+Multiple screens, maybe?
+
+* Window size is determined from `screenBits`, which documentation suggests doesn't acknowledge the existance of multiple screens. If you have two screens, meaning the window may span across multiple screens.

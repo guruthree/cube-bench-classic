@@ -73,3 +73,7 @@ The default current cube is cube 1. Clicking outside the window will also quit.
 Multiple screens, maybe?
 
 * Window size is determined from `screenBits`, which documentation suggests doesn't acknowledge the existance of multiple screens. If you have two screens, meaning the window may span across multiple screens.
+
+1-bit color displays
+
+* Only so much you can do with black and white, but that aside there may be some instances where things dissapear due to not calling `ForeColor(whiteColor)`. File an issue please.

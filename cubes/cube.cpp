@@ -161,22 +161,36 @@ void Cube::draw(Boolean color)
 }
 
 // render a face, filled in (face numbers 0 to 5)
-void Cube::solidFace(int face)
+void Cube::solidFace(int face, Boolean one_bit)
 {
-	int j;
+//	int j;
 	PolyHandle poly = OpenPoly();
 	MoveTo(screenCube[faces[face][0]].x, screenCube[faces[face][0]].y);
-	for (j = 1; j < 5; j++)
+	LineTo(screenCube[faces[face][1]].x, screenCube[faces[face][1]].y);
+	if (!one_bit)
 	{
-		LineTo(screenCube[faces[face][j]].x, screenCube[faces[face][j]].y);
+		// colour
+		LineTo(screenCube[faces[face][2]].x, screenCube[faces[face][2]].y);
+		LineTo(screenCube[faces[face][3]].x, screenCube[faces[face][3]].y);
 	}
+	else
+	{
+		// black and white
+		LineTo(screenCube[faces[face][3]].x, screenCube[faces[face][3]].y);
+		LineTo(screenCube[faces[face][2]].x, screenCube[faces[face][2]].y);
+	}
+	LineTo(screenCube[faces[face][4]].x, screenCube[faces[face][4]].y);
+//	for (j = 1; j < 5; j++)
+//	{
+//		LineTo(screenCube[faces[face][j]].x, screenCube[faces[face][j]].y);
+//	}
 	ClosePoly();
 	PaintPoly(poly);
 	KillPoly(poly);
 }
 
 // render the cube filled cube
-void Cube::solidCube(Boolean color)
+void Cube::solidCube(Boolean color, Boolean one_bit)
 {
 	// we need to depth sort to try and get rendering right
 	// only need to draw the closest 3 sides?
@@ -217,7 +231,7 @@ void Cube::solidCube(Boolean color)
 		{
 			ForeColor(colors[indexes[i]]);
 		}
-		solidFace(indexes[i]);
+		solidFace(indexes[i], one_bit);
 	}
 }
 

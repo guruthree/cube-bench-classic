@@ -57,12 +57,13 @@ void main()
 	char keyChar;
 
 	// graphics variables
-#ifdef USEOFFSCREEN
 	GDHandle onscreenDevice;
+#ifdef USEOFFSCREEN
 	GWorldPtr onScreen, offScreen;
 	PixMapHandle pixels;
 #endif
 	RgnHandle updateRgn, tpfRgn, cubeRgn;
+	Boolean one_bit; // colour depth
 
 	// cube variables
 	Cube *cubes[NUM_CUBES] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
@@ -90,6 +91,10 @@ void main()
 
 	// initialisation
 	InitToolbox();
+	
+	// find out about our hardware some
+	SysEnvRec sys_info;
+	SysEnvirons(curSysEnvVers, &sys_info);
 
 	// determine FPU info
 	char FPUbuffer[20] = "";
@@ -158,9 +163,15 @@ void main()
 	ShowWindow(appWindow); // bring to front
 	SetPort(appWindow);	   // make the window the quickdraw graphics target
 
-#ifdef USEOFFSCREEN
+
 	// front buffer
 	GetGWorld(&onScreen, &onscreenDevice);
+	
+	// get colour depth
+    // treat all macs without color quickdraw as black and white
+	one_bit = (*(*onscreenDevice)->gdPMap)->pixelSize == 1 || !sys_info.hasColorQD;
+
+#ifdef USEOFFSCREEN
 	// create back buffer (pixel depth 0 reuses screen depth)
 	NewGWorld(&offScreen, 0, &(appWindow->portRect), NULL, NULL, 0);
 	// "ctSeed slamming" to avoid having to remap colors on blit
@@ -502,7 +513,19 @@ void main()
 
 				// render
 				if (wireFrame)
-					cubes[i]->draw(true);
+				{
+					if (!one_bit)
+					{
+						// draw will set colours
+						cubes[i]->draw(true);
+					}
+					else
+					{
+						// when in one_bit mode, we need to paint in white
+						ForeColor(fgColor);
+						cubes[i]->draw(true);
+					}
+				}
 				else
 				{
 					// prepare for depth sorting
@@ -538,7 +561,17 @@ void main()
 		bubbleSort(cubeDists, cubeIdx, cubeAt);
 		for (i = 0; i < cubeAt; i++)
 		{
-			cubes[cubeIdx[i]]->solidCube(true);
+			if (!one_bit)
+			{
+				// solidCube() will set colours before calling solidFace()
+				cubes[cubeIdx[i]]->solidCube(true, one_bit);
+			}
+			else
+			{
+				// when in one_bit mode, we need to paint in white
+				ForeColor(fgColor);
+				cubes[cubeIdx[i]]->solidCube(false, one_bit);
+			}
 		}
 		cubeAt = 0; // reset for next loop
 

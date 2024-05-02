@@ -20,7 +20,7 @@ private:
 	float size;
 
 	// render a face, filled in (face numbers 0 to 5)
-	void solidFace(int face);
+	void solidFace(int face, Boolean one_bit);
 
 public:
 	// unit cube
@@ -69,7 +69,7 @@ public:
 	void draw(Boolean color);
 
 	// render the cube filled cube
-	void solidCube(Boolean color);
+	void solidCube(Boolean color, Boolean one_bit);
 
 	// identify & update the region on screen that the cube is using
 	void calculateBounds();

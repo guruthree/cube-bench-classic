@@ -130,13 +130,22 @@ void main()
 #endif
 	CtoPstr(FPUbuffer); // display functions expect P strings
 
-	// get current monitor resolution to dermine window size
-	windowRect = (*(GetGDevice()))->gdRect;
-	// convert to window size by shrinking
-	windowRect.top += SHRINK + 32;
-	windowRect.bottom -= SHRINK;
-	windowRect.left += SHRINK;
-	windowRect.right -= SHRINK;
+	// convert current monitor resolution to window size by shrinking
+	// GetGDevice was crashing on Mac SE + System 7, so disabled
+//	windowRect = (*(GetGDevice()))->gdRect;
+//	windowRect.top += SHRINK + 32;
+//	windowRect.bottom -= SHRINK;
+//	windowRect.left += SHRINK;
+//	windowRect.right -= SHRINK;
+
+	// convert current monitor resolution to window size by shrinking
+	// screenBits is a magic quickdraw global variable
+	// sadly not not multimonitor compatible
+	SetRect(&windowRect, screenBits.bounds.left + SHRINK,
+						 screenBits.bounds.top + SHRINK + 32,
+						 screenBits.bounds.right - SHRINK,
+						 screenBits.bounds.bottom - SHRINK);
+
 	// calculate the window resolution
 	xRes = windowRect.right - windowRect.left;
 	yRes = windowRect.bottom - windowRect.top;
@@ -155,8 +164,9 @@ void main()
 	// create back buffer (pixel depth 0 reuses screen depth)
 	NewGWorld(&offScreen, 0, &(appWindow->portRect), NULL, NULL, 0);
 	// "ctSeed slamming" to avoid having to remap colors on blit
-	(*((*(offScreen->portPixMap))->pmTable))->ctSeed =
-		(*((*((*(GetGDevice()))->gdPMap))->pmTable))->ctSeed;
+	// GetGDevice was crashing on Mac SE + System 7, so disabled
+//	(*((*(offScreen->portPixMap))->pmTable))->ctSeed =
+//		(*((*((*(GetGDevice()))->gdPMap))->pmTable))->ctSeed;
 	// get memory of back buffer & lock to keep from being destroyed
 	pixels = GetGWorldPixMap(offScreen);
 	NoPurgePixels(pixels);

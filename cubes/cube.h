@@ -3,8 +3,8 @@
 
 #pragma once
 
-#ifndef CUBE
-#define CUBE
+#ifndef CUBE_H
+#define CUBE_H
 
 class Cube
 {

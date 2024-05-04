@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef BUBBLESORT
-#define BUBBLESORT
+#ifndef BUBBLESORT_H
+#define BUBBLESORT_H
 
 // Function to swap elements in both arrays
 void bSswap(float *a, float *b, short *c, short *d);

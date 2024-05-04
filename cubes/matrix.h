@@ -32,8 +32,8 @@
 
 #pragma once
 
-#ifndef MATRIXMATH
-#define MATRIXMATH
+#ifndef MATRIXMATH_H
+#define MATRIXMATH_H
 
 struct Matrix3
 {

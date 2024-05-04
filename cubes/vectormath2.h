@@ -28,8 +28,8 @@
 
 #pragma once
 
-#ifndef VECTORMATH
-#define VECTORMATH
+#ifndef VECTORMATH_H
+#define VECTORMATH_H
 
 class Vector3
 {

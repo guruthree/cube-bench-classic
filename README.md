@@ -61,14 +61,21 @@ Performance is displayed as TPF, or ticks per frame. One tick corresponds to one
 | J/L | -/+ x-rotation speed of current cube      |
 | I/K | -/+ y-rotation speed of current cube      |
 | U/O | -/+ z-rotation speed of current cube      |
+| a/d | -/+ x-move current cube                   |
+| w/s | -/+ y-move current cube                   |
+| q/e | -/+ z-move current cube                   |
+| A/D | -/+ x-velocity of current cube            |
+| W/S | -/+ y-velocity of current cube            |
+| Q/E | -/+ z-velocity of current cube            |
+| r/R | randomise all active cubes                |
 | n/N | Toggle rotation                           |
-| spc | Toggle rotation                           |
 | m/M | Toggle movement                           |
+| spc | Toggle rotation & movement                |
 | v/V | Toggle invert background colour           |
 | c/C | Erase canvas                              |
 | f/F | Toggle filled cube faces                  |
 | -/+ | -/+ (decrease/increase) current cube size |
-| num | select & toggle the current cube 1 to 10  |
+| 0-9 | select & toggle the current cube 0 to 9   |
 
 The default current cube is cube 1. Clicking outside the window will also quit.
 

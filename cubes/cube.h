@@ -40,6 +40,9 @@ public:
 
 	Cube(float size);
 
+	// go back to initial settings
+	void reset();
+
 	// make bigger
 	void increaseSize();
 

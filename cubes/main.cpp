@@ -3,6 +3,7 @@
 #include <QDOffscreen.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "cube.h"
 // #include "vectormath2.h"
@@ -20,6 +21,8 @@
 
 // how many cubes we could be rendering
 #define NUM_CUBES 10
+
+#define M_PI 3.14159265359
 
 // boilerplate application initialisation
 void InitToolbox()
@@ -41,6 +44,50 @@ void writeTPF(char buffer[], unsigned char TPF)
 	CtoPstr(buffer);
 	MoveTo(7, 15);
 	DrawString((unsigned char *)buffer);
+}
+
+// generate random float, inclusive
+int rand(float mi, float ma)
+{
+	// Random() is -32,768 to 32,767, so abs to get 0-32,767
+	// multiply by the range of value to keep precision
+	// devide by original max to scale
+	// add in mi to put in correct range
+	return (abs(Random()) * (ma - mi)) / 32767.0 + mi;
+}
+
+// randomise all of the cubes
+void randomiseCubes(Cube *cubes[], Boolean *activeCubes, int xRes, int yRes)
+{
+	int i;
+	for (i = 0; i < NUM_CUBES; i++)
+	{
+		if (activeCubes[i])
+		{
+			// reset cube
+			cubes[i]->reset();
+			// cube size (2 to 15)*10 (rand 0-13 + 2)
+			cubes[i]->updateSize(rand(20, 150));
+			// location from xRes, yRes, and depth of -1000 to 100
+			cubes[i]->translate(Vector3(
+				rand(-xRes / 2, xRes / 2),
+				rand(-yRes / 2, yRes / 2),
+				rand(-1000, 100)));
+			// rotation 0 to pi/2
+			cubes[i]->rotate(Vector3(
+				rand(0, M_PI),
+				rand(0, M_PI),
+				rand(0, M_PI)));
+			// velocity 0.2-1.8
+			cubes[i]->velocity.x += rand(-1.8, 1.8);
+			cubes[i]->velocity.y += rand(-1.2, 1.2);
+			cubes[i]->velocity.z += rand(-0.7, 0.7);
+			// angular velocity 0.001 to 0.05
+			cubes[i]->dangle.x += rand(-0.04, 0.04);
+			cubes[i]->dangle.y += rand(-0.04, 0.04);
+			cubes[i]->dangle.z += rand(-0.04, 0.04);
+		}
+	}
 }
 
 void main()
@@ -74,6 +121,7 @@ void main()
 	int cubeAt = 0;
 	float cubeDists[10];
 	int cubeIdx[10];
+	randSeed = TickCount();
 
 	// cube display/interaction settings
 	Boolean doRotate = true;
@@ -312,14 +360,32 @@ void main()
 				// stop/start auto rotation
 				case 'n':
 				case 'N':
-				case ' ': // space
 					doRotate = !doRotate;
 					break;
 
-				// stop/start movement
+				// stop/start translation movement
 				case 'm':
 				case 'M':
 					doMove = !doMove;
+					break;
+
+				// stop/start all movement
+				case ' ': // space
+					if ((doRotate || doMove) && doRotate != doMove)
+					{
+						doRotate = false;
+						doMove = false;
+					}
+					else if ((!doRotate || !doMove) && doRotate != doMove)
+					{
+						doRotate = true;
+						doMove = true;
+					}
+					else
+					{
+						doRotate = !doRotate;
+						doMove = !doMove;
+					}
 					break;
 
 				// stop/start bounce collisions
@@ -328,10 +394,10 @@ void main()
 					doBounce = !doBounce;
 					break;
 
-				// randomize rotation & speed
+				// randomise rotation & speed
 				case 'r':
 				case 'R':
-					// TODO
+					randomiseCubes(cubes, activeCubes, xRes, yRes);
 					break;
 
 				// black background, white text (invert)
@@ -572,6 +638,7 @@ void main()
 			{
 				// when in one_bit mode, we need to paint in white
 				ForeColor(fgColor);
+				// cubes[i]->draw(false); // makes it much easier to see, but costs more
 				cubes[cubeIdx[i]]->solidCube(false, one_bit);
 			}
 		}

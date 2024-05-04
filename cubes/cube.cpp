@@ -29,6 +29,13 @@ const long Cube::colors[6] = {redColor, blueColor, greenColor, magentaColor, cya
 Cube::Cube(float newSize)
 {
 	// fill up cube just to make sure we don't accidentally stuff anything up
+	reset();
+	updateSize(newSize);
+}
+
+// go back to initial settings
+void Cube::reset()
+{
 	int i;
 	for (i = 0; i < 8; i++)
 	{
@@ -44,7 +51,6 @@ Cube::Cube(float newSize)
 	velocity.y = 0.8;
 	velocity.z = 0.2; //-1; // +ve is closer to the screen
 	size = 1;
-	updateSize(newSize);
 }
 
 // make bigger
@@ -163,7 +169,7 @@ void Cube::draw(Boolean color)
 // render a face, filled in (face numbers 0 to 5)
 void Cube::solidFace(int face, Boolean one_bit)
 {
-//	int j;
+	//	int j;
 	PolyHandle poly = OpenPoly();
 	MoveTo(screenCube[faces[face][0]].x, screenCube[faces[face][0]].y);
 	LineTo(screenCube[faces[face][1]].x, screenCube[faces[face][1]].y);
@@ -180,10 +186,10 @@ void Cube::solidFace(int face, Boolean one_bit)
 		LineTo(screenCube[faces[face][2]].x, screenCube[faces[face][2]].y);
 	}
 	LineTo(screenCube[faces[face][4]].x, screenCube[faces[face][4]].y);
-//	for (j = 1; j < 5; j++)
-//	{
-//		LineTo(screenCube[faces[face][j]].x, screenCube[faces[face][j]].y);
-//	}
+	//	for (j = 1; j < 5; j++)
+	//	{
+	//		LineTo(screenCube[faces[face][j]].x, screenCube[faces[face][j]].y);
+	//	}
 	ClosePoly();
 	PaintPoly(poly);
 	KillPoly(poly);
@@ -259,6 +265,7 @@ void Cube::calculateBounds()
 void Cube::roughBounds(RgnHandle rgn, int xRes, int yRes)
 {
 	// this might want a little padding when the cube is spinning fast?
+	// calculateBounds() must be called earlier in the rendering pipeline
 	SetRectRgn(rgn, leftBound, upperBound, rightBound, lowerBound);
 }
 

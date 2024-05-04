@@ -37,12 +37,28 @@ void InitToolbox()
 	InitCursor();
 }
 
+// http://preserve.mactech.com/articles/develop/issue_26/minow.html
+float MicrosecondToFloatMillis(const UnsignedWide *time)
+{
+	return ((((float)time->hi) * 4294967296.0) + time->lo) / 1000.0;
+}
+
 // display the Ticks Per Frame (1 tick ~= 1/60 s)
-void writeTPF(char buffer[], unsigned char TPF)
+void writeStats(char buffer[], unsigned char TPF, float frametime)
 {
 	sprintf(buffer, "TPF: %hu", TPF);
 	CtoPstr(buffer);
 	MoveTo(7, 15);
+	DrawString((unsigned char *)buffer);
+
+	sprintf(buffer, "FPS: %0.1f", 1.0/(frametime/1000.0));
+	CtoPstr(buffer);
+	MoveTo(7, 15+13);
+	DrawString((unsigned char *)buffer);
+	
+	sprintf(buffer, "FT: %0.1f ms", frametime);
+	CtoPstr(buffer);
+	MoveTo(7, 15+13*2);
 	DrawString((unsigned char *)buffer);
 }
 
@@ -132,8 +148,16 @@ void main()
 
 	// benchmark variables
 	unsigned char TPF = 0;	// ticks per frame
-	char buffer[20];		// for displaying TPF
-	unsigned long int last; // time of last frame
+	char buffer[20];		// for displaying stats
+	unsigned long int last; // time of last frame (in ticks)
+	float timeElapsed = 0;	// in milliseconds
+	// apparently microseconds might not be supported everywhere?
+	// https://68kmla.org/bb/index.php?threads/better-than-tickcount-timing.41563/
+	// the alternative would be to use a time manager task to count its elapsed time, listing 3-6 in
+	// https://developer.apple.com/library/archive/documentation/mac/pdf/Processes/Time_Manager.pdf
+	UnsignedWide startTime, endTime;
+	Microseconds(&startTime);
+
 	// colouring stuff
 	long fgColor = blackColor;
 	long bgColor = whiteColor;
@@ -146,40 +170,63 @@ void main()
 	SysEnvirons(curSysEnvVers, &sys_info);
 
 	// determine FPU info
-	char FPUbuffer[20] = "";
-	long FPUtype;
-	if (noErr == Gestalt(gestaltFPUType, &FPUtype))
+	char FPUbuffer[30] = "";
+	long CPUtype, FPUtype;
+	if (noErr == Gestalt(gestaltNativeCPUtype, &CPUtype) && noErr == Gestalt(gestaltFPUType, &FPUtype))
 	{
-		switch (FPUtype)
+		switch (CPUtype)
 		{
-		case gestaltNoFPU:
-			strcpy(FPUbuffer, "NO FPU");
+		case gestaltCPU68000:
+		case gestaltCPU68010:
+		case gestaltCPU68020:
+		case gestaltCPU68030:
+		case gestaltCPU68040:
+			strcpy(FPUbuffer, "68000 CPU");
+			FPUbuffer[3] = CPUtype + '0';
 			break;
 
-		case gestalt68881:
-			strcpy(FPUbuffer, "FPU 68881");
-			break;
-
-		case gestalt68882:
-			strcpy(FPUbuffer, "FPU 68882");
-			break;
-
-		case gestalt68040FPU:
-			strcpy(FPUbuffer, "FPU 68040");
+		case gestaltCPU601:
+		case gestaltCPU603:
+		case gestaltCPU604:
+			strcpy(FPUbuffer, "  600 CPU");
+			FPUbuffer[4] = CPUtype - 0x100 + '0';
 			break;
 
 		default:
-			strcpy(FPUbuffer, "FPU ERR");
+			strcpy(FPUbuffer, "   ?? CPU");
+			break;
+		}
+
+		switch (FPUtype)
+		{
+		case gestaltNoFPU:
+			strcat(FPUbuffer, " / NO FPU");
+			break;
+
+		case gestalt68881:
+			strcat(FPUbuffer, " / 68881 FPU");
+			break;
+
+		case gestalt68882:
+			strcat(FPUbuffer, " / 68882 FPU");
+			break;
+
+		case gestalt68040FPU:
+			strcat(FPUbuffer, " / 68040 FPU");
+			break;
+
+		default:
+			strcat(FPUbuffer, " /    ?? FPU");
 			break;
 		}
 	}
 	else
 	{
-		strcpy(FPUbuffer, "FPU ERR");
+		strcpy(FPUbuffer, "CPU/FPU ERR");
 	}
 #if !mc68881
 	// a 6XXXX FPU
-	if (FPUbuffer[4] == '6')
+	if (FPUbuffer[12] == '6')
 		strcat(FPUbuffer, " (DISABLED)");
 #endif
 	CtoPstr(FPUbuffer); // display functions expect P strings
@@ -240,7 +287,7 @@ void main()
 
 	// screen area where TPF is drawn
 	tpfRgn = NewRgn();
-	SetRectRgn(tpfRgn, 0, 0, 80, 40);
+	SetRectRgn(tpfRgn, 0, 0, 100, 45);
 	// screen area where FPU is drawn
 	updateRgn = NewRgn();
 	SetRectRgn(updateRgn, 0, yRes - 40, 80, yRes);
@@ -248,7 +295,7 @@ void main()
 	UnionRgn(tpfRgn, updateRgn, tpfRgn);
 	cubeRgn = NewRgn(); // screen space with cubes in it
 
-	SysBeep(1); // init OK
+	// SysBeep(1); // init OK
 	running = true;
 	while (running == true)
 	{
@@ -619,6 +666,7 @@ void main()
 						// inverting velocities
 
 						// TODO bounce code
+						// sum(centre.^2 - centre.^2) < 100?
 					}
 				}
 			}
@@ -644,9 +692,9 @@ void main()
 		}
 		cubeAt = 0; // reset for next loop
 
-		// write TPF/FPU
+		// write TPF, stats, & CPU/FPU situation
 		ForeColor(fgColor);
-		writeTPF(buffer, TPF);
+		writeStats(buffer, TPF, timeElapsed);
 		MoveTo(7, yRes - 7);
 		DrawString((unsigned char *)FPUbuffer);
 
@@ -674,7 +722,12 @@ void main()
 				 //  srcCopy, updateRgn); // copy just updated region
 				 srcCopy, NULL); // copy entire screen
 #endif
+
+		// benchmark stuff
 		TPF = TickCount() - last;
+		Microseconds(&endTime);
+		timeElapsed = MicrosecondToFloatMillis(&endTime) - MicrosecondToFloatMillis(&startTime);
+		startTime = endTime;
 
 	} // while running
 

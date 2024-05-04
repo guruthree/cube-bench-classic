@@ -638,7 +638,7 @@ void main()
 					{
 						// when in one_bit mode, we need to paint in white
 						ForeColor(fgColor);
-						cubes[i]->draw(true);
+						cubes[i]->draw(false);
 					}
 				}
 				else

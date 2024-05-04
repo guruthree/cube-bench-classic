@@ -23,7 +23,7 @@ const int Cube::faces[6][5] = {
 	{2, 6, 7, 3, 2},
 	{2, 6, 5, 1, 2}};
 
-// colors of the faces
+// colours of the faces
 const long Cube::colors[6] = {redColor, blueColor, greenColor, magentaColor, cyanColor, yellowColor};
 
 Cube::Cube(float newSize)

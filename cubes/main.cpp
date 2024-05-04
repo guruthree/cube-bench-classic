@@ -63,7 +63,7 @@ void main()
 	PixMapHandle pixels;
 #endif
 	RgnHandle updateRgn, tpfRgn, cubeRgn;
-	Boolean one_bit; // colour depth
+	Boolean one_bit; // change behaivour with colour depth
 
 	// cube variables
 	Cube *cubes[NUM_CUBES] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
@@ -85,7 +85,7 @@ void main()
 	unsigned char TPF = 0;	// ticks per frame
 	char buffer[20];		// for displaying TPF
 	unsigned long int last; // time of last frame
-	// coloring stuff
+	// colouring stuff
 	long fgColor = blackColor;
 	long bgColor = whiteColor;
 
@@ -156,7 +156,7 @@ void main()
 	yRes = windowRect.bottom - windowRect.top;
 
 	// create window, sized by windowRect in absolute screen coordinates
-	appWindow = NewWindow(0L, &windowRect, "\pSpinning Cube Benchmark",
+	appWindow = NewWindow(0L, &windowRect, "\pCube Bench Classic",
 						  true, movableDBoxProc, (WindowPtr)-1L, 1, 0);
 	// 0 - auto assign memory, window size, window title, visible
 	// window type, put window in front, have close box, refCon
@@ -174,7 +174,7 @@ void main()
 #ifdef USEOFFSCREEN
 	// create back buffer (pixel depth 0 reuses screen depth)
 	NewGWorld(&offScreen, 0, &(appWindow->portRect), NULL, NULL, 0);
-	// "ctSeed slamming" to avoid having to remap colors on blit
+	// "ctSeed slamming" to avoid having to remap colours on blit
 	// GetGDevice was crashing on Mac SE + System 7, so disabled
 //	(*((*(offScreen->portPixMap))->pmTable))->ctSeed =
 //		(*((*((*(GetGDevice()))->gdPMap))->pmTable))->ctSeed;

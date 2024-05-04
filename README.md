@@ -1,11 +1,15 @@
 # cube-bench-classic
 *A new benchmark for Classic Macintosh Computers*
 
-A very simple benchmark involving a cube for Classic Mac OS System 7.
+Cube Bench Classic is a very simple benchmark involving a cube designed for Classic Mac OS System 7. Requires Color QuickDraw.
 
-I wanted something a bit more relatable than a bar chart or flashing patterned rectangles to get a feel for performance differences between classic Macs (LC III, etc.). So for #Marchintosh 2024, I wrote my own benchmark with the classic bouncing cube(s). A relatable mix of floating point, regular computation, and QuickDraw calls.
+I wanted something a bit more relatable than a bar chart or flashing patterned rectangles to get a feel for performance differences between classic Macs (LC III, etc.). So for #Marchintosh 2024, I wrote my own benchmark with the classic bouncing cube(s).
 
 ![Screenshot of the benchmark](screenshot.png)
+
+Cube Bench Classic is designed to stress the CPU, FPU, and memory bus. Being a System 7 application, everything software rendering is pretty much the only game in town. Cube Bench Classic uses floating point arithmetic for pretty much everything to stress the FPU. Particularly, the cube is rotated using transcendentals (i.e., trigonometric functions).
+
+Drawing on the screen is done using QuickDraw lines and filled polygons. Every QuickDraw call seems to force a screen refresh so something had to be done to avoid flickering. There's no way to flip buffers in QuickDraw that I could, so the usual double-buffering wasn't an option. Instead, rendering is done on an Offscreen Graphics World (back buffer) before copying to the Onscreen Graphics World (front buffer). This stresses the memory bus.
 
 ## Compilation
 
@@ -30,7 +34,7 @@ Note that Classic Mac OS expects CR line endings. This repository currently is s
 
 If your Mac has as resolution higher than 640x480 at 256 colours, you will need to increase the partition size in order to run the application. This can either be done using Get Info (⌘I) in the Finder and entering a larger 'Preferred size', or during compilation going to the 'Project' menu, selecting 'Set Project Type...', and entering a larger value in the 'Partition (K)' field.
 
-A 512 K partition size is fine for 800x600 at 256 colors, which is as high as I can test on real hardware.
+A 512 K partition size is fine for 800x600 at 256 colours, which is as high as I can test on real hardware.
 
 ## Usage
 
@@ -42,7 +46,7 @@ At some point the h key will bring up on screen help.
 
 Tested under System 7.5.3 on an LC, LC II, LC II, LC 475, and BasiliskII 1.0.0_p20240224. Seems to crash in BasiliskII with a large window size for reasons unknown. Tested under System 7.1 on a SE.
 
-Performance is displayed as TPF, or ticks per frame. One tick corresponds to one screen refresh, and so will be about 1/60th of a second for most people.
+Performance is displayed as TPF, or ticks per frame. One tick corresponds to one screen refresh. For most people using a mac to VGA adapter one tick will generally be about 1/60th of a second.
 
 ### Key bindings
 
@@ -72,8 +76,8 @@ The default current cube is cube 1. Clicking outside the window will also quit.
 
 Multiple screens, maybe?
 
-* Window size is determined from `screenBits`, which documentation suggests doesn't acknowledge the existance of multiple screens. If you have two screens, meaning the window may span across multiple screens.
+* Window size is determined from `screenBits`, which documentation suggests doesn't acknowledge the existence of multiple screens. If you have two screens, meaning the window may span across multiple screens.
 
-1-bit color displays
+1-bit colour
 
-* Only so much you can do with black and white, but that aside there may be some instances where things dissapear due to not calling `ForeColor(whiteColor)`. File an issue please.
+* Only so much you can do with black and white, but that aside there may be some instances where things disappear due to not calling `ForeColor(whiteColor)`. File an issue please.

@@ -92,7 +92,7 @@ void main()
 
 	// initialisation
 	InitToolbox();
-	
+
 	// find out about our hardware some
 	SysEnvRec sys_info;
 	SysEnvirons(curSysEnvVers, &sys_info);
@@ -138,19 +138,20 @@ void main()
 
 	// convert current monitor resolution to window size by shrinking
 	// GetGDevice was crashing on Mac SE + System 7, so disabled
-//	windowRect = (*(GetGDevice()))->gdRect;
-//	windowRect.top += SHRINK + 32;
-//	windowRect.bottom -= SHRINK;
-//	windowRect.left += SHRINK;
-//	windowRect.right -= SHRINK;
+	//	windowRect = (*(GetGDevice()))->gdRect;
+	//	windowRect.top += SHRINK + 32;
+	//	windowRect.bottom -= SHRINK;
+	//	windowRect.left += SHRINK;
+	//	windowRect.right -= SHRINK;
 
 	// convert current monitor resolution to window size by shrinking
 	// screenBits is a magic quickdraw global variable
 	// sadly not not multimonitor compatible
-	SetRect(&windowRect, screenBits.bounds.left + SHRINK,
-						 screenBits.bounds.top + SHRINK + 32,
-						 screenBits.bounds.right - SHRINK,
-						 screenBits.bounds.bottom - SHRINK);
+	SetRect(&windowRect,
+			screenBits.bounds.left + SHRINK,
+			screenBits.bounds.top + SHRINK + 32,
+			screenBits.bounds.right - SHRINK,
+			screenBits.bounds.bottom - SHRINK);
 
 	// calculate the window resolution
 	xRes = windowRect.right - windowRect.left;
@@ -164,12 +165,11 @@ void main()
 	ShowWindow(appWindow); // bring to front
 	SetPort(appWindow);	   // make the window the quickdraw graphics target
 
-
 	// front buffer
 	GetGWorld(&onScreen, &onscreenDevice);
-	
+
 	// get colour depth
-    // treat all macs without color quickdraw as black and white
+	// treat all macs without color quickdraw as black and white
 	one_bit = (*(*onscreenDevice)->gdPMap)->pixelSize == 1 || !sys_info.hasColorQD;
 
 #ifdef USEOFFSCREEN
@@ -177,8 +177,8 @@ void main()
 	NewGWorld(&offScreen, 0, &(appWindow->portRect), NULL, NULL, 0);
 	// "ctSeed slamming" to avoid having to remap colours on blit
 	// GetGDevice was crashing on Mac SE + System 7, so disabled
-//	(*((*(offScreen->portPixMap))->pmTable))->ctSeed =
-//		(*((*((*(GetGDevice()))->gdPMap))->pmTable))->ctSeed;
+	//	(*((*(offScreen->portPixMap))->pmTable))->ctSeed =
+	//		(*((*((*(GetGDevice()))->gdPMap))->pmTable))->ctSeed;
 	// get memory of back buffer & lock to keep from being destroyed
 	pixels = GetGWorldPixMap(offScreen);
 	NoPurgePixels(pixels);

@@ -58,8 +58,9 @@ void main()
 
 	// graphics variables
 	GDHandle onscreenDevice;
+	GWorldPtr onScreen;
 #ifdef USEOFFSCREEN
-	GWorldPtr onScreen, offScreen;
+	GWorldPtr offScreen;
 	PixMapHandle pixels;
 #endif
 	RgnHandle updateRgn, tpfRgn, cubeRgn;
@@ -199,6 +200,7 @@ void main()
 	UnionRgn(tpfRgn, updateRgn, tpfRgn);
 	cubeRgn = NewRgn(); // screen space with cubes in it
 
+	SysBeep(1); // init OK
 	running = true;
 	while (running == true)
 	{

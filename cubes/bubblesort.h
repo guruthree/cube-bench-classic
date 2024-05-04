@@ -8,9 +8,9 @@
 #define BUBBLESORT
 
 // Function to swap elements in both arrays
-void bSswap(float *a, float *b, int *c, int *d);
+void bSswap(float *a, float *b, short *c, short *d);
 
 // Function to perform bubble sort
-void bubbleSort(float keys[], int values[], int n);
+void bubbleSort(float keys[], short values[], short n);
 
 #endif

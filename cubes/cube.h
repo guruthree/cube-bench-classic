@@ -20,13 +20,13 @@ private:
 	float size;
 
 	// render a face, filled in (face numbers 0 to 5)
-	void solidFace(int face, Boolean one_bit);
+	void solidFace(short face, Boolean one_bit);
 
 public:
 	// unit cube
 	static const Vector3 verticies[8];
 	// mapping of vertices to make quads (polys) for rendering
-	static const int faces[6][5];
+	static const short faces[6][5];
 	// colors of the faces
 	static const long colors[6];
 
@@ -36,7 +36,7 @@ public:
 	Vector3 velocity;
 
 	// the edges of the bounding rectangle in screen space
-	int leftBound, rightBound, upperBound, lowerBound;
+	short leftBound, rightBound, upperBound, lowerBound;
 
 	Cube(float size);
 
@@ -66,7 +66,7 @@ public:
 	void autoTranslate();
 
 	// calculate where the cube is in screen space
-	void preCalculate(int xRes, int yRes);
+	void preCalculate(short xRes, short yRes);
 
 	// render the cube as wireframe
 	void draw(Boolean color);
@@ -78,7 +78,7 @@ public:
 	void calculateBounds();
 
 	// convert bounds to Region, the cube will be somwhere within
-	void roughBounds(RgnHandle rgn, int xRes, int yRes);
+	void roughBounds(RgnHandle rgn, short xRes, short yRes);
 
 	// z-coordinate of the cube (1000-z) is the distance away from the camera
 	float getZ();

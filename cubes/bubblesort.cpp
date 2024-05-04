@@ -3,21 +3,21 @@
 // in one using ANSI C?"
 
 // Function to swap elements in both arrays
-void bSswap(float *a, float *b, int *c, int *d)
+void bSswap(float *a, float *b, short *c, short *d)
 {
 	float temp = *a;
 	*a = *b;
 	*b = temp;
 
-	int tmp = *c;
+	short tmp = *c;
 	*c = *d;
 	*d = tmp;
 }
 
 // Function to perform bubble sort, soring  values array by contents of keys
-void bubbleSort(float keys[], int values[], int n)
+void bubbleSort(float keys[], short values[], short n)
 {
-	int i, j;
+	short i, j;
 	for (i = 0; i < n - 1; i++)
 	{
 		for (j = 0; j < n - i - 1; j++)

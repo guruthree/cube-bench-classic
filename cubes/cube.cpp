@@ -15,7 +15,7 @@ const Vector3 Cube::verticies[8] = {
 	Vector3(-0.5f, 0.5f, -0.5f)};
 
 // mapping of vertices to make quads (polys) for rendering
-const int Cube::faces[6][5] = {
+const short Cube::faces[6][5] = {
 	{0, 1, 2, 3, 0},
 	{4, 5, 6, 7, 4},
 	{0, 4, 5, 1, 0},
@@ -36,7 +36,7 @@ Cube::Cube(float newSize)
 // go back to initial settings
 void Cube::reset()
 {
-	int i;
+	short i;
 	for (i = 0; i < 8; i++)
 	{
 		cube[i] = verticies[i];
@@ -76,7 +76,7 @@ void Cube::updateSize(float newSize)
 // adjust the size of cube by a factor
 void Cube::scale(float scale)
 {
-	int i;
+	short i;
 	for (i = 0; i < 8; i++)
 	{
 		cube[i] = cube[i].scale(scale);
@@ -92,7 +92,7 @@ void Cube::translate(Vector3 offset)
 // rotate the cube
 void Cube::rotate(Vector3 dangle)
 {
-	int i;
+	short i;
 	Matrix3 rot = Matrix3::getRotationMatrix(dangle);
 	for (i = 0; i < 8; i++)
 	{
@@ -112,9 +112,9 @@ void Cube::autoTranslate()
 }
 
 // calculate where the cube is in screen space
-void Cube::preCalculate(int xRes, int yRes)
+void Cube::preCalculate(short xRes, short yRes)
 {
-	int i;
+	short i;
 	Matrix3 rot = Matrix3::getRotationMatrix(dangle);
 	for (i = 0; i < 8; i++)
 	{
@@ -167,9 +167,9 @@ void Cube::draw(Boolean color)
 }
 
 // render a face, filled in (face numbers 0 to 5)
-void Cube::solidFace(int face, Boolean one_bit)
+void Cube::solidFace(short face, Boolean one_bit)
 {
-	//	int j;
+	//	short j;
 	PolyHandle poly = OpenPoly();
 	MoveTo(screenCube[faces[face][0]].x, screenCube[faces[face][0]].y);
 	LineTo(screenCube[faces[face][1]].x, screenCube[faces[face][1]].y);
@@ -200,11 +200,11 @@ void Cube::solidCube(Boolean color, Boolean one_bit)
 {
 	// we need to depth sort to try and get rendering right
 	// only need to draw the closest 3 sides?
-	int i, j;
+	short i, j;
 	// just need one vector3 to use for calculation, then store the result in averageDepths
 	Vector3 faceCenter;
 	float averageDepths[6] = {0, 0, 0, 0, 0, 0};
-	int indexes[6] = {0, 1, 2, 3, 4, 5}; // the faces (to be re-ordered)
+	short indexes[6] = {0, 1, 2, 3, 4, 5}; // the faces (to be re-ordered)
 
 	for (i = 0; i < 6; i++)
 	{
@@ -244,7 +244,7 @@ void Cube::solidCube(Boolean color, Boolean one_bit)
 // identify & update the region on screen that the cube is using
 void Cube::calculateBounds()
 {
-	int i;
+	short i;
 	leftBound = 1000, rightBound = 0, upperBound = 1000, lowerBound = 0;
 
 	for (i = 0; i < 8; i++)
@@ -262,7 +262,7 @@ void Cube::calculateBounds()
 }
 
 // convert bounds to Region, the cube will be somwhere within
-void Cube::roughBounds(RgnHandle rgn, int xRes, int yRes)
+void Cube::roughBounds(RgnHandle rgn, short xRes, short yRes)
 {
 	// this might want a little padding when the cube is spinning fast?
 	// calculateBounds() must be called earlier in the rendering pipeline

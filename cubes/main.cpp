@@ -47,7 +47,7 @@ void writeTPF(char buffer[], unsigned char TPF)
 }
 
 // generate random float, inclusive
-int rand(float mi, float ma)
+float rand(float mi, float ma)
 {
 	// Random() is -32,768 to 32,767, so abs to get 0-32,767
 	// multiply by the range of value to keep precision
@@ -57,9 +57,9 @@ int rand(float mi, float ma)
 }
 
 // randomise all of the cubes
-void randomiseCubes(Cube *cubes[], Boolean *activeCubes, int xRes, int yRes)
+void randomiseCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes)
 {
-	int i;
+	short i;
 	for (i = 0; i < NUM_CUBES; i++)
 	{
 		if (activeCubes[i])
@@ -93,10 +93,10 @@ void randomiseCubes(Cube *cubes[], Boolean *activeCubes, int xRes, int yRes)
 void main()
 {
 	// for looping
-	int i, j;
+	short i, j;
 
 	// window & input variables
-	int xRes, yRes;
+	short xRes, yRes;
 	WindowPtr appWindow;
 	Rect windowRect;
 	Boolean running;
@@ -118,9 +118,9 @@ void main()
 	Boolean activeCubes[NUM_CUBES] = {true, false, false, false, false, false, false, false, false, false};
 	cubes[0] = new Cube(100);
 	Cube *myCube = cubes[0]; // default cube for control
-	int cubeAt = 0;
+	short cubeAt = 0;
 	float cubeDists[10];
-	int cubeIdx[10];
+	short cubeIdx[10];
 	randSeed = TickCount();
 
 	// cube display/interaction settings
@@ -460,7 +460,7 @@ void main()
 				case '8':
 				case '9':
 				case '0':
-					keyChar -= 48;	  // go from char to int
+					keyChar -= 48;	  // go from char to short
 					if (keyChar == 0) // I want 0 to be 10
 					{
 						keyChar = 10;

@@ -22,6 +22,20 @@
 
 void main()
 {
+	// find out about our hardware some
+	SysEnvRec sys_info;
+	SysEnvirons(curSysEnvVers, &sys_info);
+
+#if mc68881
+	// if we are compiled for fpu but don't have an FPU, quit
+	// although we might still crash anyway, BasiliskII does at least :(
+	if (!sys_info.hasFPU)
+	{
+		SysBeep(1);
+		exit(0);
+	}
+#endif
+
 	// for looping
 	short i, j;
 
@@ -80,10 +94,6 @@ void main()
 
 	// initialisation
 	InitToolbox();
-
-	// find out about our hardware some
-	SysEnvRec sys_info;
-	SysEnvirons(curSysEnvVers, &sys_info);
 
 	// determine FPU info
 	char FPUbuffer[30] = "";

@@ -24,7 +24,10 @@ void InitToolbox()
 // http://preserve.mactech.com/articles/develop/issue_26/minow.html
 float MicrosecondToFloatMillis(const UnsignedWide *time)
 {
-    return ((((float)time->hi) * 4294967296.0) + time->lo) / 1000.0;
+    // this needs to be a double, so we'll ignore the hi bits and just
+    // kind of assume wrapping works OK as we only need time differences
+    // return ((((float)time->hi) * 4294967296.0) + time->lo) / 1000.0;
+    return (time->lo) / 1000.0;
 }
 
 // display the Ticks Per Frame (1 tick ~= 1/60 s)

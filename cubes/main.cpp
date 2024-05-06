@@ -69,8 +69,10 @@ void main()
 	// https://68kmla.org/bb/index.php?threads/better-than-tickcount-timing.41563/
 	// the alternative would be to use a time manager task to count its elapsed time, listing 3-6 in
 	// https://developer.apple.com/library/archive/documentation/mac/pdf/Processes/Time_Manager.pdf
-	UnsignedWide startTime, endTime;
-	Microseconds(&startTime);
+	UnsignedWide currentTimeW;
+	Microseconds(&currentTimeW);
+	float lastTime = MicrosecondToFloatMillis(&currentTimeW);
+	float currentTime = lastTime;
 
 	// colouring stuff
 	long fgColor = blackColor;
@@ -581,9 +583,10 @@ void main()
 
 		// benchmark stuff
 		TPF = TickCount() - last;
-		Microseconds(&endTime);
-		timeElapsed = MicrosecondToFloatMillis(&endTime) - MicrosecondToFloatMillis(&startTime);
-		startTime = endTime;
+		Microseconds(&currentTimeW);
+		currentTime = MicrosecondToFloatMillis(&currentTimeW);
+		timeElapsed = currentTime - lastTime;
+		lastTime = currentTime;
 
 	} // while running
 

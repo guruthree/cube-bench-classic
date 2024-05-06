@@ -6,6 +6,7 @@
 #include "cube.h"
 #include "vectormath2.h"
 #include "bubblesort.h"
+#include "screenshot.h"
 
 // how much smaller than the resolution to make the window
 #define SHRINK 40
@@ -410,6 +411,8 @@ void main()
 				// screen shot - only caps so it's hard to do on accident
 				case 'P':
 					// TODO
+					takeScreenshot(offScreen);
+					// reset timers after coming back from screen shot to not mess up stats
 					break;
 
 				default:

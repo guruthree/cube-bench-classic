@@ -136,16 +136,24 @@ void main()
 	one_bit = (*(*onscreenDevice)->gdPMap)->pixelSize == 1 || !sys_info.hasColorQD;
 
 #ifdef USEOFFSCREEN
-	// create back buffer (pixel depth 0 reuses screen depth)
+	// create back buffer
+	// the first 0 is pixel depth 0, which reuses screen depth, this
+	// is desired as the NewWindow lives in this same colour depth and
+	// we need them to match in order to quickly copy between the two
 	NewGWorld(&offScreen, 0, &(appWindow->portRect), NULL, NULL, 0);
 	// "ctSeed slamming" to avoid having to remap colours on blit
 	// GetGDevice was crashing on Mac SE + System 7, so disabled
 	//	(*((*(offScreen->portPixMap))->pmTable))->ctSeed =
 	//		(*((*((*(GetGDevice()))->gdPMap))->pmTable))->ctSeed;
+	// we don't need to slam anyway as by passing NULL to ctTable we're
+	// using the default color table for the pixel depth, which should
+	// match what NewWindow used when creating its on screen window
 	// get memory of back buffer & lock to keep from being destroyed
 	pixels = GetGWorldPixMap(offScreen);
 	NoPurgePixels(pixels);
 	LockPixels(pixels);
+	// might have been able to just use a Picture instead?
+	// (although images don't support all features of a world)
 
 	// make sure the back buffer is clear
 	SetGWorld(offScreen, NULL);
@@ -397,6 +405,11 @@ void main()
 						activeCubes[keyChar] = !activeCubes[keyChar];
 					if (activeCubes[keyChar])
 						myCube = cubes[keyChar];
+					break;
+
+				// screen shot - only caps so it's hard to do on accident
+				case 'P':
+					// TODO
 					break;
 
 				default:

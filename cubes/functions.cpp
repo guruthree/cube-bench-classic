@@ -1,6 +1,9 @@
+// functions for main.cpp
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
 #include "cube.h"
 
 // the functions from main in their own file to speed up

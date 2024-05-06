@@ -101,7 +101,7 @@ void randomiseCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes,
 void getCPUandFPU(char FPUbuffer[], SysEnvRec *sys_info)
 {
     long CPUtype, FPUtype;
-    if (noErr == Gestalt(gestaltNativeCPUtype, &CPUtype))
+    if (Gestalt(gestaltNativeCPUtype, &CPUtype) == noErr)
     {
         switch (CPUtype)
         {
@@ -140,7 +140,7 @@ void getCPUandFPU(char FPUbuffer[], SysEnvRec *sys_info)
         }
     }
 
-    if (noErr == Gestalt(gestaltFPUType, &FPUtype))
+    if (Gestalt(gestaltFPUType, &FPUtype) == noErr)
     {
         switch (FPUtype)
         {

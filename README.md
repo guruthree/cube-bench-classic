@@ -67,7 +67,7 @@ Performance is displayed as TPF, or ticks per frame. One tick corresponds to one
 | A/D | -/+ x-velocity of current cube            |
 | W/S | -/+ y-velocity of current cube            |
 | Q/E | -/+ z-velocity of current cube            |
-| r/R | randomise all active cubes                |
+| R   | randomise all active cubes                |
 | n/N | Toggle rotation                           |
 | m/M | Toggle movement                           |
 | spc | Toggle rotation & movement                |

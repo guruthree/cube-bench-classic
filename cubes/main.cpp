@@ -299,8 +299,12 @@ void main()
 					doBounce = !doBounce;
 					break;
 
-				// randomise rotation & speed
+				// reset cubes to their initial positions
 				case 'r':
+					// TODO
+					break;
+
+				// randomise rotation & speed
 				case 'R':
 					randomiseCubes(cubes, activeCubes, xRes, yRes, NUM_CUBES);
 					break;

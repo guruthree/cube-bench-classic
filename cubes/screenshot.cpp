@@ -109,9 +109,56 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 
 	// TODO write a BMP...
 	// https://en.wikipedia.org/wiki/BMP_file_format
+	// https://upload.wikimedia.org/wikipedia/commons/f/fd/WinBmpHeaders.png
 
-	write_char(fid, 'B');
+	// header field
+	write_char(fid, 'B'); // 0x00, bfType
 	write_char(fid, 'M');
+
+	// TODO file size
+	write_long(fid, 0); // 0x02, bfSize
+
+	// reserved
+	write_short(fid, 0); // 0x06, bfReserved1
+	write_short(fid, 0); // 0x08, bfReserved2
+
+	// TODO offset of pixel array
+	write_long(fid, 0); // 0x10, biOffBits
+
+	// we're writing a BITMAPINFOHEADER
+	write_long(fid, 40); // 0x0E, biSize
+
+	// TODO x and y image resolution
+	write_long(fid, 0); // 0x12, biWidth
+	write_long(fid, 0); // 0x16, biHeight
+
+	// number of colour planes
+	write_short(fid, 1); // 0x26, biPlanes
+
+	// TODO colour depth (bits per pixel)
+	write_short(fid, 0); // 0x28, biBitCount
+
+	// compression method, 0 is BI_RGB, no compression
+	write_long(fid, 0); // 0x30, biCompression
+
+	// the size of the raw bitmap data - this can just be 0 with BI_RGB
+	write_long(fid, 0); // 0x34, biSizeImage
+
+	// the horizontal and vertical resolution of the image (pixels/metre)
+	write_long(fid, 0); // 0x38, biXPelsPerMeter
+	write_long(fid, 0); // 0x42, biYPelsPerMeter
+
+	// TODO number of colours in the color palette
+	write_long(fid, 0); // 0x46, biClrUsed
+	// TODO number of important colors in the palette
+	write_long(fid, 0); // 0x50, biClrImportant
+	// match the colour depth?
+
+	// indexed colour table
+	// R, G, B, 0x00 for bitfield compression
+
+	// pixel data
+	// R, G, B or index
 
 	err = FSClose(fid);
 	if (err != noErr)

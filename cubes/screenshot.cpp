@@ -1,6 +1,34 @@
 // needed for GWorldPtr
 #include <QDOffscreen.h>
 
+OSErr writeData(short fid, long *bytesToWrite, void *dataToWrite)
+{
+	OSErr err = FSWrite(fid, bytesToWrite, dataToWrite);
+	if (err != noErr)
+	{
+		SysBeep(1);
+	}
+	return err;
+}
+
+// BMP needs data in LSB, while 68k as in MSB, so we need to swap byte order
+#define WRITE_TYPE(TYPE)                                       \
+	OSErr write_##TYPE(short fid, TYPE data)                   \
+	{                                                          \
+		long bytesToWrite = sizeof(TYPE);                      \
+		unsigned char dataToWrite[sizeof(TYPE)];               \
+		for (short i = 0; i < sizeof(data); i++)               \
+		{                                                      \
+			dataToWrite[i] = (unsigned char)(data >> (i * 8)); \
+		}                                                      \
+		return writeData(fid, &bytesToWrite, dataToWrite);     \
+	}
+
+// this gives us write_char(fid, byte), write_type(fid, short), write_type(fid, long)
+WRITE_TYPE(char)
+WRITE_TYPE(short)
+WRITE_TYPE(long)
+
 // save a cpopy of the offScreen world to a bitmap file
 // default response to errors will be to beep and return
 OSErr takeScreenshot(GWorldPtr offScreen)
@@ -82,18 +110,8 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 	// TODO write a BMP...
 	// https://en.wikipedia.org/wiki/BMP_file_format
 
-	long byteCounter = 5;
-	// note shorts are 2 bytes, so if writing short need to double byte counter
-	// so let's just use char for now
-	char data[7] = {0x13, 0x37, 0x01, 0x02, 0x03, 0x04, 0x05};
-
-	// might want a wrapper function for this?
-	err = FSWrite(fid, &byteCounter, data);
-	if (err != noErr)
-	{
-		SysBeep(1);
-		return err;
-	}
+	write_char(fid, 'B');
+	write_char(fid, 'M');
 
 	err = FSClose(fid);
 	if (err != noErr)

@@ -70,6 +70,7 @@ Performance is displayed as TPF, or ticks per frame. One tick corresponds to one
 | R   | randomise all active cubes                |
 | n/N | Toggle rotation                           |
 | m/M | Toggle movement                           |
+| P   | Save a screen shot to a BMP image         |
 | spc | Toggle rotation & movement                |
 | v/V | Toggle invert background colour           |
 | c/C | Erase canvas                              |
@@ -88,3 +89,9 @@ Multiple screens, maybe?
 1-bit colour
 
 * Only so much you can do with black and white, but that aside there may be some instances where things disappear due to not calling `ForeColor(whiteColor)`. File an issue please.
+
+Saving screenshots
+
+* Sometimes the background looks a bit pink. Are you in 16-bit ("Thousands of Colors") mode? 16-bit bitmaps are scuffed, with missing green precision, due to Motorola 68000 CPUs being big-endian and BMP needing little-endian (as written at least). What image editors do with the left over bits varies. Try opening in another image editor, e.g. the [GNU Image Manipulation Program](https://www.gimp.org/).
+
+* There's some garbage on the sides of the screenshot. This is expected. Sometimes the buffer we are saving a copy off is larger than what is displayed on scree due to Apple aligning the underlying buffer to memory for faster copies. You may safely ignore these parts of the image.

@@ -29,7 +29,7 @@ WRITE_TYPE(char)
 WRITE_TYPE(short)
 WRITE_TYPE(long)
 
-// save a cpopy of the offScreen world to a bitmap file
+// save a copy of the offScreen world to a bitmap file
 // default response to errors will be to beep and return
 OSErr takeScreenshot(GWorldPtr offScreen)
 {
@@ -202,9 +202,8 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 	write_long(fid, numBytes); // 0x22, biSizeImage
 
 	// the horizontal and vertical resolution of the image (pixels/metre)
-	// magic number from gimp
-	write_long(fid, 0xB13); // 0x26, biXPelsPerMeter
-	write_long(fid, 0xB13); // 0x2A, biYPelsPerMeter
+	write_long(fid, 0); // 0x26, biXPelsPerMeter
+	write_long(fid, 0); // 0x2A, biYPelsPerMeter
 
 	// number of colours in the color palette
 	if (!indexedColor)
@@ -310,6 +309,7 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 	// it's possible bitsPtr is a 32-bit address and if so we need to swap
 	// the memory management unit (mmu) to 32-bit in order to access it
 	// pmVersion to check if address is accessible in 32bit mode only (page)
+	// http://preserve.mactech.com/articles/develop/issue_08/095-098_Guest_column.html
 	Boolean highmem = (**pixmap).pmVersion == baseAddr32;
 	char mmuMode = true32b;
 	if (highmem)

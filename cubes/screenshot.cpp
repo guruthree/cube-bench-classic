@@ -149,12 +149,6 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 	// calculate the final file size
 	long fileSize = numBytes + paletteSize * 4 + 0x36; // 0x36 is the size of the header
 
-	// make sure the image data always aligns with a 4 byte boundary
-	// rows should also be 4 byte aligned I think, but forunately the pixmap
-	// takes care of that for us behind the scenes
-	short paddingAfterHeader = 4 - headerLength % 4; // should always be > 0
-	headerLength = headerLength + paddingAfterHeader;
-
 	// header field
 	write_char(fid, 'B'); // 0x00, bfType
 	write_char(fid, 'M');
@@ -226,12 +220,6 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 		write_char(fid, (**((**pixmap).pmTable)).ctTable[i].rgb.red >> 8);
 
 		// padding
-		write_char(fid, 0);
-	}
-
-	// padding to align on 4 byte boundary
-	for (i = 0; i < paddingAfterHeader; i++)
-	{
 		write_char(fid, 0);
 	}
 

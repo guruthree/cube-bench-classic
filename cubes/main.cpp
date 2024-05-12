@@ -27,12 +27,22 @@ void main()
 	SysEnvRec sys_info;
 	SysEnvirons(curSysEnvVers, &sys_info);
 
+	// check for at least System 7
+	if ((sys_info.systemVersion & 0xFF00) >> 8 < 7)
+	{
+		SysBeep(1);
+		SysBeep(1);
+		Delay(60, NULL);
+		exit(0);
+	}
+
 #if mc68881
 	// if we are compiled for fpu but don't have an FPU, quit
 	// although we might still crash anyway, BasiliskII does at least :(
 	if (!sys_info.hasFPU)
 	{
 		SysBeep(1);
+		Delay(30, NULL);
 		exit(0);
 	}
 #endif

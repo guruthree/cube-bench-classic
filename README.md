@@ -82,6 +82,10 @@ The default current cube is cube 1. Clicking outside the window will also quit.
 
 ### Known issues
 
+Immediately quits
+
+* This will happen if either Cube Bench Classic has been compiled to use a FPU and one is not detected (1 beep) or if System version is less than 7 (2 beeps).
+
 Multiple screens, maybe?
 
 * Window size is determined from `screenBits`, which documentation suggests doesn't acknowledge the existence of multiple screens. If you have two screens, meaning the window may span across multiple screens.
@@ -95,3 +99,7 @@ Saving screenshots
 * Sometimes the background looks a bit pink. Are you in 16-bit ("Thousands of Colors") mode? 16-bit bitmaps are scuffed, with missing green precision, due to Motorola 68000 CPUs being big-endian and BMP needing little-endian (as written at least). What image editors do with the left over bits varies. Try opening in another image editor, e.g. the [GNU Image Manipulation Program](https://www.gimp.org/).
 
 * There's some garbage on the sides of the screenshot. This is expected. Sometimes the buffer we are saving a copy off is larger than what is displayed on scree due to Apple aligning the underlying buffer to memory for faster copies. You may safely ignore these parts of the image.
+
+* One beep during saving a screenshot indicates an issue selecting the save file.
+
+* Two beeps during saving a screenshot indicate an issue writing the image data.

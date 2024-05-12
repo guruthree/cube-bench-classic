@@ -34,6 +34,8 @@ WRITE_TYPE(long)
 OSErr takeScreenshot(GWorldPtr offScreen)
 {
 	short i; // for looping
+	OSErr err = noErr;
+	short fid;
 
 	/* Figure out file stuff */
 
@@ -46,7 +48,6 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 	if (!myReply.sfGood)
 	{
 		// user cancelled
-		SysBeep(1);
 		return fnfErr;
 	}
 
@@ -57,20 +58,19 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 		return notAFileErr;
 	}
 
+	FSSpec outFile = myReply.sfFile;
+
 	// checked to make sure it's a file, now not that it's something that already exists
 	if (myReply.sfReplacing)
 	{
-		// user elected to replace a file
-		// not supported for now
-		SysBeep(1);
-		// A file with the specified name and version number already exists
-		return dupFNErr;
-		// if replacing, might need SetEOF to control file size?
+		// user elected to replace a file, delete the existing one to put a new
+		err = FSpDelete(&outFile);
+		if (err != noErr)
+		{
+			SysBeep(1);
+			return err;
+		}
 	}
-
-	OSErr err = noErr;
-	FSSpec outFile = myReply.sfFile;
-	short fid;
 
 	// create empty file with data and resource forks?
 	// 'CUBE' is the creator, which is whatever we want

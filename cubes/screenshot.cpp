@@ -95,10 +95,6 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 	// Programming QuickDraw (1992) by David A Surovell, Frederick M Hall, and Konstantin Othmer
 	// has been absolutely invaluable for figuring out how to do this
 
-	// TODO
-	// flip the image since BMP expects the rows to go from bottom to top
-	// and the mac stores it the other way around
-
 	// pixmap is a ptr with all of the image info in it (page 136)
 	PixMapHandle pixmap; // this is a **
 	pixmap = GetGWorldPixMap(offScreen);
@@ -318,8 +314,26 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 		SwapMMUMode(&mmuMode);
 	}
 
+	// flip the image since BMP expects the data for rows to go from bottom to top
+	// and the mac stores it the other way around
+	long *rowBuffer = (long *)NewPtr(myRowBytes);
+	for (i = 0; i < height / 2; i++)
+	{
+		long *topRow = bitsPtr + i * myRowBytes / 4; // divide by 4 because LONG addresses are 4 bytes
+		long *bottomRow = bitsPtr + (height - i - 1) * myRowBytes / 4;
+		BlockMove(bottomRow, rowBuffer, myRowBytes);
+		BlockMove(topRow, bottomRow, myRowBytes);
+		BlockMove(rowBuffer, topRow, myRowBytes);
+	}
+	DisposePtr((Ptr)rowBuffer);
+
 	// write out pixel data
 	err = FSWrite(fid, &numBytes, bitsPtr);
+	if (err != noErr)
+	{
+		SysBeep(1);
+		SysBeep(1);
+	}
 
 	if (highmem)
 	{
@@ -328,6 +342,12 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 	}
 
 	//	UnlockPixels(pixmap); // already locked in main()
+
+	// the main routine isn't expecting the buffer to be flipped
+	// clear it so everything can be drawn new fresh
+	SetGWorld(offScreen, NULL);
+	Rect bounds = (**pixmap).bounds;
+	EraseRect(&bounds);
 
 	err = FSClose(fid);
 	if (err != noErr)

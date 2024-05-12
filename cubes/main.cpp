@@ -131,6 +131,13 @@ void main()
 	xRes = windowRect.right - windowRect.left;
 	yRes = windowRect.bottom - windowRect.top;
 
+	// ensure the vertical resolution is a multiple of 2
+	if (yRes % 2 != 0)
+	{
+		windowRect.bottom--;
+		yRes--;
+	}
+
 	// create window, sized by windowRect in absolute screen coordinates
 	appWindow = NewWindow(0L, &windowRect, "\pCube Bench Classic",
 						  true, movableDBoxProc, (WindowPtr)-1L, 1, 0);

@@ -118,6 +118,8 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 
 	// pixelType indicates whether the buffer is indexed or not
 	Boolean indexedColor = (**pixmap).pixelType == 0;
+	// if we're 16/24 bit and not indexed we need to do some tricks down the line
+	Boolean customBitfields = pixelSize > 8 && !indexedColor;
 
 	// size of the image data
 	long numBytes = myRowBytes * height;
@@ -141,13 +143,20 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 	/* Write a BMP image */
 	// https://en.wikipedia.org/wiki/BMP_file_format
 	// https://upload.wikimedia.org/wikipedia/commons/f/fd/WinBmpHeaders.png
+	// https://en.wikipedia.org/wiki/File:BitfieldsSLN.svg
 
 	// calculate the total size of the header (BITMAPINFOHEADER + pallette info)
 	// BITMAPINFOHEADERis always 0x36 bytes
 	long headerLength = 0x36 + paletteSize * 4;
+	// plus also bitfields information
+	if (customBitfields)
+	{
+		// space for RGB pixel masks
+		headerLength += 12; // 3 * 4
+	}
 
 	// calculate the final file size
-	long fileSize = numBytes + paletteSize * 4 + 0x36; // 0x36 is the size of the header
+	long fileSize = numBytes + headerLength;
 
 	// header field
 	write_char(fid, 'B'); // 0x00, bfType
@@ -177,9 +186,17 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 	write_short(fid, pixelSize); // 0x1C, biBitCount
 
 	// compression method
-	// 0 is BI_RGB, no compression
-	// 3 is BI_BITFIELDS, indexed colour
-	write_long(fid, 0); // 0x1E, biCompression
+	// 0 is BI_RGB, indexed colour
+	// 3 is BI_BITFIELDS, different bits of bytes mean different colors
+	if (indexedColor)
+	{
+		write_long(fid, 0); // 0x1E, biCompression
+	}
+	else
+	{
+		// when not indexed different bits mean different colors
+		write_long(fid, 3);
+	}
 
 	// the size of the raw bitmap data - this can just be 0 with BI_RGB
 	write_long(fid, numBytes); // 0x22, biSizeImage
@@ -221,6 +238,67 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 
 		// padding
 		write_char(fid, 0);
+	}
+
+	if (customBitfields)
+	{
+		if (pixelSize == 16)
+		{
+			// 16 bit color bits are 0b0RRR RRGG GGGB BBBB
+			// endianness really plays heck with this one
+
+			// red mask 0x36
+			write_char(fid, 0x7C); // 0b01111100
+			write_char(fid, 0x00); // 0b00000000
+			write_char(fid, 0);
+			write_char(fid, 0);
+
+			// green mask 0x3A
+			write_char(fid, 0x03); // 0b00000011
+			// we can't have the bitfield split like this
+			// so we just take the most significant bits to indicate some green
+			// and ignore the rest for now
+			// write_char(fid, 0xE0); // 0b11100000
+			write_char(fid, 0);
+			write_char(fid, 0);
+			write_char(fid, 0);
+
+			// note the actual solution would be to write out edian swapped
+			// or to convert to a different pallette before export. hah.
+
+			// blue mask 0x3E
+			write_char(fid, 0x00); // 0b00000000
+			write_char(fid, 0x1F); // 0b00011111
+			write_char(fid, 0);
+			write_char(fid, 0);
+
+			// // padding
+			// write_char(fid, 0);
+			// write_char(fid, 0);
+		}
+		else if (pixelSize == 32)
+		{
+			// 00 DD 08 06 is 0RGB, but normally RGB0 is expected
+			// swap around for endianess
+
+			// red mask 0x36
+			write_char(fid, 0);
+			write_char(fid, 255);
+			write_char(fid, 0);
+			write_char(fid, 0);
+
+			// green mask 0x3A
+			write_char(fid, 0);
+			write_char(fid, 0);
+			write_char(fid, 255);
+			write_char(fid, 0);
+
+			// blue mask 0x3E
+			write_char(fid, 0);
+			write_char(fid, 0);
+			write_char(fid, 0);
+			write_char(fid, 255);
+		}
 	}
 
 	//	LockPixels(pixmap); // already locked in main()

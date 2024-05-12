@@ -33,7 +33,9 @@ WRITE_TYPE(long)
 // default response to errors will be to beep and return
 OSErr takeScreenshot(GWorldPtr offScreen)
 {
-	short i, j;
+	short i; // for looping
+
+	/* Figure out file stuff */
 
 	// StandardPutFile to open a file save dialog
 	StandardFileReply myReply;
@@ -88,93 +90,90 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 		return err;
 	}
 
-	/*
+	/* Figure out image stuff */
 
-		// From ChatGPT
-		// "How could I save a copy of the image in my offscreen graphics world GWorldPtr onto disk?"
+	// Programming QuickDraw (1992) by David A Surovell, Frederick M Hall, and Konstantin Othmer
+	// has been absolutely invaluable for figuring out how to do this
 
-		// Get the size of the Picture data
-		size = GetHandleSize((Handle)picture);
+	// TODO
+	// flip the image since BMP expects the rows to go from bottom to top
+	// and the mac stores it the other way around
 
-		// Write the Picture data to the file
-		err = FSWrite(fileRefNum, &size, *(Handle *)picture);
-
-	*/
-
-	// pixmap is a ptr with all of the image info in it
+	// pixmap is a ptr with all of the image info in it (page 136)
 	PixMapHandle pixmap; // this is a **
 	pixmap = GetGWorldPixMap(offScreen);
-//	pixmap = offScreen->portPixMap;
+	//	pixmap = offScreen->portPixMap;
 
-
+	// pixelSize indicates the colour depth (bits per pixel)
+	short pixelSize = (**pixmap).pixelSize;
 	unsigned long myRowBytes = (**pixmap).rowBytes & 0x3fff;
 
-	// top and left often 0, but not always so
-//	unsigned long width = (**pixmap).bounds.right - (**pixmap).bounds.left;
-	unsigned long width = myRowBytes; // need to take into account bpp
+	// the resolution of the back buffer is usually larger than the actually displayed
+	// image due to byte (boundary) alignment, it's most convenient to write it out
+	// in this form so we're writing out a slightly larger image and there will be a
+	// little bit of garbage in the frame as a result
+	// note top and left are often 0, but not always so
+	unsigned long width = (myRowBytes * 8) / pixelSize; // takes into account bpp (page 138)
 	unsigned long height = (**pixmap).bounds.bottom - (**pixmap).bounds.top;
-	
-//	width = width + 16;
-//	height = height + 6;
-	
+
+	// pixelType indicates whether the buffer is indexed or not
 	Boolean indexedColor = (**pixmap).pixelType == 0;
-//	Boolean indexedColor = false;
 
+	// size of the image data
+	long numBytes = myRowBytes * height;
 
-//	write_long(fid, (**pixmap).packType); // should be 0 for RGB
-//	write_char(fid, 0x99);
-	
-	
-	long numBytes = myRowBytes*height;
-	
+	// how many colours are in the palette (if a palette is used)
 	short paletteSize = 0;
 	if (indexedColor)
 	{
-		paletteSize = (**((**pixmap).pmTable)).ctSize;
+		// it seems like BMP expects palette size to be the < type,
+		// similar to for (i = 0; i < paletteSize; i++) so that if the
+		// palette was black and white, paletteSize = 2
+		paletteSize = (**((**pixmap).pmTable)).ctSize + 1;
+		// note pmTable is a CTabHandle, which is a struct that contains
+		// all of the info about the colour together pallete (page 104)
+		// lots of deferencing to extract values out of it
 	}
-	
-	short pixelSize = (**pixmap).pixelSize;
-	
-	long fileSize = numBytes + paletteSize * 3 + 0x36; // 0x36 is the size of the header
-	
-	long headerLength = 0x36 + paletteSize*3;
-	
-	short paddingAfterHeader = 4 - headerLength % 4;
-	// ^ shoudl always be > 0
-	headerLength = headerLength + paddingAfterHeader;
-	
 
-	// GetPixBaseAddr() to get where the ptr is
-	// pmTable would be the indexed colour table?
-	// need to dump the cTable (pointed to by pmTable), as everything uses a default table by default
-	// pixelsize - colour depth
-	// pixeltype - indexed or not
-	// packtype - pixel colour layout, which is likely to be 'chunky' - rgbrgbrgb
-	// pmVersion to check if address is accessible in 32bit mode only
+	// note somwhere packType should probably checked to verify the pixel colour layout
+	// this should be 'chunky' - rgbrgbrgb
 
-	// TODO write a BMP...
+	/* Write a BMP image */
 	// https://en.wikipedia.org/wiki/BMP_file_format
 	// https://upload.wikimedia.org/wikipedia/commons/f/fd/WinBmpHeaders.png
+
+	// calculate the total size of the header (BITMAPINFOHEADER + pallette info)
+	// BITMAPINFOHEADERis always 0x36 bytes
+	long headerLength = 0x36 + paletteSize * 4;
+
+	// calculate the final file size
+	long fileSize = numBytes + paletteSize * 4 + 0x36; // 0x36 is the size of the header
+
+	// make sure the image data always aligns with a 4 byte boundary
+	// rows should also be 4 byte aligned I think, but forunately the pixmap
+	// takes care of that for us behind the scenes
+	short paddingAfterHeader = 4 - headerLength % 4; // should always be > 0
+	headerLength = headerLength + paddingAfterHeader;
 
 	// header field
 	write_char(fid, 'B'); // 0x00, bfType
 	write_char(fid, 'M');
 
-	// TODO file size
+	// file size
 	write_long(fid, fileSize); // 0x02, bfSize
 
 	// reserved
 	write_short(fid, 0); // 0x06, bfReserved1
 	write_short(fid, 0); // 0x08, bfReserved2
 
-	// TODO offset of pixel array
+	// offset of pixel array
 	write_long(fid, headerLength); // 0x0A, biOffBits
 
 	// we're writing a BITMAPINFOHEADER
 	write_long(fid, 40); // 0x0E, biSize
 
 	// x and y image resolution
-	write_long(fid, width); // 0x12, biWidth
+	write_long(fid, width);	 // 0x12, biWidth
 	write_long(fid, height); // 0x16, biHeight
 
 	// number of colour planes
@@ -183,20 +182,10 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 	// colour depth (bits per pixel)
 	write_short(fid, pixelSize); // 0x1C, biBitCount
 
-	// compression method // 0x1E, biCompression
-	//if (pixmap->pmTable == NULL)
-//	if ((*((*pixmap)->pmTable)) == NULL)
-//	if ((**pixmap).pmTable == NULL)
-//	if (!indexedColor)
-//	{
-		// 0 is BI_RGB, no compression
-		write_long(fid, 0);
-//	}
-//	else
-//	{
-//		// 3 is BI_BITFIELDS, indexed colour
-//		write_long(fid, 3);
-//	}
+	// compression method
+	// 0 is BI_RGB, no compression
+	// 3 is BI_BITFIELDS, indexed colour
+	write_long(fid, 0); // 0x1E, biCompression
 
 	// the size of the raw bitmap data - this can just be 0 with BI_RGB
 	write_long(fid, numBytes); // 0x22, biSizeImage
@@ -224,107 +213,55 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 	{
 		write_long(fid, paletteSize);
 	}
-	// match the colour depth?
-	
-	// padding?
-//		write_char(fid,0);
-//		write_char(fid,0);
-//		write_char(fid,0);
 
-	// indexed colour table
-	// R, G, B for palette colors?
-
-	// Programming QuickDraw, page 105
-	// ctSeed, ctSize, ctTable
-
-	// R, G, B, 0x00 for 4 byte alignment?
+	// write out the indexed colour table if that's a thing
+	// (almost everything uses a default table and is indexed colour)
+	// R, G, B, 0x00 for 4 byte alignment
+	// we need to dump the cTable (pointed to by pmTable)
 	for (i = 0; i < paletteSize; i++)
 	{
+		// Macs store colour as 16-bit integers (page 97)
+		write_char(fid, (**((**pixmap).pmTable)).ctTable[i].rgb.blue >> 8);
+		write_char(fid, (**((**pixmap).pmTable)).ctTable[i].rgb.green >> 8);
+		write_char(fid, (**((**pixmap).pmTable)).ctTable[i].rgb.red >> 8);
 
-		Boolean found = false;
-		for (j = 0; j < paletteSize; j++)
-		{
-			// value inside is the index color to match against?
-
-			if ( (**((**pixmap).pmTable)).ctTable[j].value == i)
-			{
-
-				write_char(fid, (**((**pixmap).pmTable)).ctTable[j].rgb.red);
-				write_char(fid, (**((**pixmap).pmTable)).ctTable[j].rgb.green);
-				write_char(fid, (**((**pixmap).pmTable)).ctTable[j].rgb.blue);
-				
-				
-				write_char(fid, (**((**pixmap).pmTable)).ctTable[j].rgb.blue);
-				write_char(fid, (**((**pixmap).pmTable)).ctTable[j].rgb.green);
-				write_char(fid, (**((**pixmap).pmTable)).ctTable[j].rgb.red);
-				
-		write_char(fid,0); // not needed? I think it is based on outfile.c
-				
-				
-				found = true;
-				break;
-			}
-		
-		
-		}
-		if (!found)
-		{
-				write_char(fid,0);
-				write_char(fid,0);
-				write_char(fid,0);
-		write_char(fid,0); // not needed?
-		}
-
-		
+		// padding
+		write_char(fid, 0);
 	}
-	
-	// pixel data for palette
-	
+
 	// padding to align on 4 byte boundary
 	for (i = 0; i < paddingAfterHeader; i++)
 	{
 		write_char(fid, 0);
 	}
-	
-//	LockPixels(pixmap); // already locked in main()
-	
-	long *bitsPtr = (long*)GetPixBaseAddr(pixmap);
+
+	//	LockPixels(pixmap); // already locked in main()
+
+	// GetPixBaseAddr() to get where the pointer to the buffer is
+	// (the pointer should never be accessed directly out of the struct)
+	long *bitsPtr = (long *)GetPixBaseAddr(pixmap);
+
+	// it's possible bitsPtr is a 32-bit address and if so we need to swap
+	// the memory management unit (mmu) to 32-bit in order to access it
+	// pmVersion to check if address is accessible in 32bit mode only (page)
+	Boolean highmem = (**pixmap).pmVersion == baseAddr32;
 	char mmuMode = true32b;
-	SwapMMUMode(&mmuMode);
-	
-	// TODO the image comes out upside down from this
-	err = FSWrite(fid, &numBytes, bitsPtr);
-	
-	
-/*	long t = 1;
-	
-	for (j = 0; j < height; j++)
+	if (highmem)
 	{
-		for (i = 0; i < width; i++)
-		{
-//			write_char(fid,
-//			 *(bitsPtr + (j - height) * myRowBytes + ((i - width) * pixelSize) / 8));
-//			 *(bitsPtr + (height - j) * myRowBytes + i);
+		// swap to 32-bit memory mode
+		SwapMMUMode(&mmuMode);
+	}
 
+	// write out pixel data
+	err = FSWrite(fid, &numBytes, bitsPtr);
 
-			FSWrite(fid, &t, bitsPtr + (height - j) * myRowBytes + i);
+	if (highmem)
+	{
+		// swap back to the previous MMU mode
+		SwapMMUMode(&mmuMode);
+	}
 
-		}
-	}*/
-	
-	
-	
-//	if (err != noErr)
-//	{
-//		SysBeep(1);
-//	}
-	
-	
-	
-	SwapMMUMode(&mmuMode);
-	
-//	UnlockPixels(pixmap); // already locked in main()
-	
+	//	UnlockPixels(pixmap); // already locked in main()
 
 	err = FSClose(fid);
 	if (err != noErr)

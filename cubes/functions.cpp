@@ -63,6 +63,90 @@ float rand(float mi, float ma)
     return (abs(Random()) * (ma - mi)) / 32767.0 + mi;
 }
 
+// reset all of the cubes
+void resetCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes, short num_cubes)
+{
+    short i, j, c = 0;
+
+    // cube 0
+    if (activeCubes[c])
+    {
+        cubes[c]->reset();
+        cubes[c]->updateSize(100);
+    }
+    c++;
+
+    short offsets[2] = {-1, 1};
+
+    // cubes 1-4
+    for (i = 0; i < 2; i++)
+    {
+        for (j = 0; j < 2; j++)
+        {
+            if (activeCubes[c])
+            {
+                cubes[c]->reset();
+                cubes[c]->updateSize(xRes / 10);
+                cubes[c]->translate(Vector3(offsets[i] * xRes / 4, offsets[j] * yRes / 4, 0));
+                cubes[c]->dangle.x *= offsets[i];
+                // cubes[c]->dangle.y *= offsets[j];
+                cubes[c]->dangle.z *= offsets[j];
+            }
+            c++;
+        }
+    }
+
+    // cubes 5-6
+    for (i = 0; i < 2; i++)
+    {
+        if (activeCubes[c])
+        {
+            cubes[c]->reset();
+            cubes[c]->updateSize(xRes / 20);
+            cubes[c]->translate(Vector3(offsets[i] * 3 * xRes / 7, 0, -100));
+            cubes[c]->velocity.x *= -1;
+            cubes[c]->velocity.y *= -1;
+            cubes[c]->velocity.z *= -1;
+            cubes[c]->dangle.x *= offsets[i];
+            cubes[c]->dangle.y *= -1;
+            cubes[c]->dangle.z *= -1;
+        }
+        c++;
+    }
+
+    // cubes 7-9
+    for (i = 0; i < 2; i++)
+    {
+        if (activeCubes[c])
+        {
+            cubes[c]->reset();
+            cubes[c]->updateSize(xRes / 20);
+            cubes[c]->translate(Vector3(0, offsets[i] * 3 * yRes / 7, -100));
+            cubes[c]->velocity.x *= -1;
+            cubes[c]->velocity.y *= -1;
+            cubes[c]->velocity.z *= -1;
+            cubes[c]->dangle.x *= -1;
+            cubes[c]->dangle.y *= offsets[i];
+            cubes[c]->dangle.z *= -1;
+        }
+        c++;
+    }
+
+    // cube 10
+    if (activeCubes[c])
+    {
+        cubes[c]->reset();
+        cubes[c]->updateSize(yRes * 1.5);
+        cubes[c]->translate(Vector3(0, 0, -1000));
+        cubes[c]->velocity.x = 0;
+        cubes[c]->velocity.y = 0;
+        cubes[c]->velocity.z = 0;
+        cubes[c]->dangle.x *= 0.1;
+        cubes[c]->dangle.y *= 0.1;
+        cubes[c]->dangle.z *= 0.1;
+    }
+}
+
 // randomise all of the cubes
 void randomiseCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes, short num_cubes)
 {

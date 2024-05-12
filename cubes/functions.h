@@ -26,6 +26,9 @@ void writeStats(char buffer[], unsigned char TPF, float frametime);
 // generate random float, inclusive
 float rand(float mi, float ma);
 
+// reset all of the cubes
+void resetCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes, short num_cubes);
+
 // randomise all of the cubes
 void randomiseCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes, short num_cubes);
 

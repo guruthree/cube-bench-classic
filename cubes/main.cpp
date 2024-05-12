@@ -70,8 +70,11 @@ void main()
 
 	// cube variables
 	Cube *cubes[NUM_CUBES] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+	for (i = 0; i < NUM_CUBES; i++)
+	{
+		cubes[i] = new Cube(100);
+	}
 	Boolean activeCubes[NUM_CUBES] = {true, false, false, false, false, false, false, false, false, false};
-	cubes[0] = new Cube(100);
 	Cube *myCube = cubes[0]; // default cube for control
 	short cubeAt = 0;
 	float cubeDists[10];
@@ -189,13 +192,17 @@ void main()
 	UnionRgn(tpfRgn, updateRgn, tpfRgn);
 	cubeRgn = NewRgn(); // screen space with cubes in it
 
+	// put all the cubes in their programmed positions
+	resetCubes(cubes, activeCubes, xRes, yRes, NUM_CUBES);
+
 	// SysBeep(1); // init OK
 	running = true;
 	while (running == true)
 	{
 		last = TickCount();
 
-		if (WaitNextEvent(everyEvent, &myEvent, 1, NULL))
+		// sleep is 0 to be greedy and try and not let things happen in the background
+		if (WaitNextEvent(everyEvent, &myEvent, 0, NULL))
 		{
 			switch (myEvent.what)
 			{
@@ -337,7 +344,9 @@ void main()
 
 				// reset cubes to their initial positions
 				case 'r':
-					// TODO
+					doRotate = true;
+					doMove = false;
+					resetCubes(cubes, activeCubes, xRes, yRes, NUM_CUBES);
 					break;
 
 				// randomise rotation & speed

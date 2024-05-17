@@ -23,6 +23,9 @@ float MicrosecondToFloatMillis(const UnsignedWide *time);
 // display the Ticks Per Frame (1 tick ~= 1/60 s)
 void writeStats(char buffer[], unsigned char TPF, float frametime);
 
+// display a help message
+void writeHelp(short startX);
+
 // generate random float, inclusive
 float rand(float mi, float ma);
 

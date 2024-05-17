@@ -55,6 +55,18 @@ Performance is displayed as TPF, or ticks per frame. One tick corresponds to one
 | `   | Quit                                      |
 | ret | Quit                                      |
 | esc | Quit                                      |
+| c/C | Erase canvas                              |
+| f/F | Toggle filled cube faces                  |
+| h/H | On screen help message                    |
+| m/M | Toggle movement                           |
+| n/N | Toggle rotation                           |
+| P   | Save a screen shot to a BMP image         |
+| r   | reset all active cubes                    |
+| R   | randomise all active cubes                |
+| v/V | Toggle invert background colour           |
+| spc | Toggle rotation & movement                |
+| -/+ | -/+ (decrease/increase) current cube size |
+| 0-9 | select & toggle the current cube 0 to 9   |
 | j/l | -/+ x-rotate current cube                 |
 | i/k | -/+ y-rotate current cube                 |
 | u/o | -/+ z-rotate current cube                 |
@@ -67,17 +79,6 @@ Performance is displayed as TPF, or ticks per frame. One tick corresponds to one
 | A/D | -/+ x-velocity of current cube            |
 | W/S | -/+ y-velocity of current cube            |
 | Q/E | -/+ z-velocity of current cube            |
-| r   | reset all active cubes properties         |
-| R   | randomise all active cubes                |
-| n/N | Toggle rotation                           |
-| m/M | Toggle movement                           |
-| P   | Save a screen shot to a BMP image         |
-| spc | Toggle rotation & movement                |
-| v/V | Toggle invert background colour           |
-| c/C | Erase canvas                              |
-| f/F | Toggle filled cube faces                  |
-| -/+ | -/+ (decrease/increase) current cube size |
-| 0-9 | select & toggle the current cube 0 to 9   |
 
 The default current cube is cube 1. Clicking outside the window will also quit.
 

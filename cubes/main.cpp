@@ -21,6 +21,9 @@
 // how many cubes we could be rendering
 #define NUM_CUBES 10
 
+// offset from the right for help message
+#define HELP_OFFSET 202
+
 void main()
 {
 	// find out about our hardware some
@@ -65,8 +68,9 @@ void main()
 	GWorldPtr offScreen;
 	PixMapHandle pixels;
 #endif
-	RgnHandle updateRgn, tpfRgn, cubeRgn;
-	Boolean one_bit; // change behaivour with colour depth
+	RgnHandle updateRgn, tpfRgn, cubeRgn, helpRgn;
+	Boolean one_bit; // change behaviour with colour depth
+	Boolean showHelp = false;
 
 	// cube variables
 	Cube *cubes[NUM_CUBES] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
@@ -191,6 +195,9 @@ void main()
 	// combine in tpfRgn
 	UnionRgn(tpfRgn, updateRgn, tpfRgn);
 	cubeRgn = NewRgn(); // screen space with cubes in it
+	// screen space where help is drawn
+	helpRgn = NewRgn();
+	SetRectRgn(helpRgn, xRes - HELP_OFFSET, 0, xRes, 175);
 
 	// put all the cubes in their programmed positions
 	resetCubes(cubes, activeCubes, xRes, yRes, NUM_CUBES);
@@ -436,9 +443,29 @@ void main()
 
 				// screen shot - only caps so it's hard to do on accident
 				case 'P':
-					// TODO
 					takeScreenshot(offScreen);
 					// reset timers after coming back from screen shot to not mess up stats
+					break;
+
+				// show/hide help
+				case 'h':
+				case 'H':
+					showHelp = !showHelp;
+					if (!showHelp)
+					{
+#ifdef USEOFFSCREEN
+						SetGWorld(offScreen, NULL);
+#endif
+						EraseRgn(helpRgn);
+#ifdef USEOFFSCREEN
+						SetGWorld(onScreen, onscreenDevice);
+						CopyBits(&(((GrafPtr)offScreen)->portBits),
+								 &(((GrafPtr)onScreen)->portBits),
+								 &(offScreen->portRect),
+								 &(onScreen->portRect),
+								 srcCopy, NULL);
+#endif
+					}
 					break;
 
 				default:
@@ -465,6 +492,11 @@ void main()
 		// erase just the pixels (or region?) of the cube
 		// clear TPF/FPU text
 		EraseRgn(tpfRgn);
+		// clear help text
+		if (showHelp)
+		{
+			EraseRgn(helpRgn);
+		}
 
 		// draw over old cube
 		for (i = 0; i < NUM_CUBES; i++)
@@ -612,6 +644,12 @@ void main()
 		MoveTo(7, yRes - 7);
 		DrawString((unsigned char *)FPUbuffer);
 
+		if (showHelp)
+		{
+			// display the help message
+			writeHelp(xRes - HELP_OFFSET + 1);
+		}
+
 		// copy back buffer to front, which will also trigger a display refresh
 #ifdef USEOFFSCREEN
 		// only update where the cube is
@@ -627,6 +665,10 @@ void main()
 		CopyRgn(updateRgn, cubeRgn);
 
 		UnionRgn(updateRgn, tpfRgn, updateRgn);
+		if (showHelp)
+		{
+			UnionRgn(updateRgn, helpRgn, updateRgn);
+		}
 
 		SetGWorld(onScreen, onscreenDevice);
 		CopyBits(&(((GrafPtr)offScreen)->portBits),

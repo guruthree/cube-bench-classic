@@ -53,6 +53,38 @@ void writeStats(char buffer[], unsigned char TPF, float frametime)
     DrawString((unsigned char *)buffer);
 }
 
+// display a help message
+void writeHelp(short startX)
+{
+    short startY = 2;
+    MoveTo(startX, startY += 13); // #1
+    DrawString("\p>>> h: HELP <<<");
+    MoveTo(startX, startY += 13); // #2
+    DrawString("\p`/esc/ret: quit");
+    MoveTo(startX, startY += 13); // #3
+    DrawString("\pn/m/spc: toggle rotate/move");
+    MoveTo(startX, startY += 13); // #4
+    DrawString("\pspc: toggle both");
+    MoveTo(startX, startY += 13); // #5
+    DrawString("\pP: screenshot");
+    MoveTo(startX, startY += 13); // #6
+    DrawString("\pr/R: reset/randomise cubes");
+    MoveTo(startX, startY += 13); // #7
+    DrawString("\pv/c: invert/erase canvas");
+    MoveTo(startX, startY += 13); // #8
+    DrawString("\pf/-/+: fill/resize cube");
+    MoveTo(startX, startY += 13); // #9
+    DrawString("\p1-0: toggle cube");
+    MoveTo(startX, startY += 13); // #10
+    DrawString("\pjlikuo: rotation");
+    MoveTo(startX, startY += 13); // #11
+    DrawString("\pJLIKUO: rotation speed");
+    MoveTo(startX, startY += 13); // #12
+    DrawString("\padwsqe: move");
+    MoveTo(startX, startY += 13); // #13
+    DrawString("\pADWSQE: move speed");
+}
+
 // generate random float, inclusive
 float rand(float mi, float ma)
 {

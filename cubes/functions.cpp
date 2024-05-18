@@ -1,5 +1,6 @@
 // functions for main.cpp
 
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -10,6 +11,9 @@
 // recompiling on old hardware
 
 #define M_PI 3.14159265359
+
+// keep a 1 minute (full benchmark) record of stats
+#define LONG_STATS
 
 // boilerplate application initialisation
 void InitToolbox()
@@ -33,24 +37,120 @@ float MicrosecondToFloatMillis(const UnsignedWide *time)
     return (time->lo) / 1000.0;
 }
 
+// for storing stats while running
+#define CONCAT(a, b) a##b
+#define NEW_ARRAY(NAME, LEN)      \
+    float CONCAT(NAME, LEN)[LEN]; \
+    short CONCAT(NAME, LEN)##_at = -1;
+#define INIT_ARRAY(NAME, LEN)                      \
+    memset(CONCAT(NAME, LEN), LEN, sizeof(float)); \
+    CONCAT(NAME, LEN)                              \
+    ##_at = 0;
+#define LOOP_ARRAY(NAME, LEN)          \
+    if (CONCAT(NAME, LEN)##_at == LEN) \
+    {                                  \
+        CONCAT(NAME, LEN)              \
+        ##_at = 0;                     \
+    }
+#define ADD2_ARRAY(NAME, LEN, VALUE) CONCAT(NAME, LEN)[CONCAT(NAME, LEN)##_at++] = VALUE;
+#define MEAN(NAME, LEN) mean(CONCAT(NAME, LEN), LEN)
+#define STD(NAME, MU, LEN) std(CONCAT(NAME, LEN), MU, LEN)
+
+float mean(float *x, short len)
+{
+    short i;
+    double sum = 0;
+    for (i = 0; i < len; i++)
+    {
+        sum += x[i];
+    }
+    return sum / len;
+}
+
+float std(float *x, float mu, short len)
+{
+    short i;
+    double sum = 0;
+    for (i = 0; i < len; i++)
+    {
+        sum += pow(x[i] - mu, 2);
+    }
+    return sqrt(sum / len);
+}
+
+#define LAST_LEN 30
+#define LONG_LAST_LEN 3600
+
+NEW_ARRAY(last, LAST_LEN)
+NEW_ARRAY(lastfps, LAST_LEN)
+#ifdef LONG_STATS
+NEW_ARRAY(last, LONG_LAST_LEN)
+#endif
+
+// need a way to show decimals on the SE, which doesn't agree with %0.1f
+void tenthsPlace(float in, short &f, short &tenths)
+{
+    // return the value in the tens place
+    f = (short)floor(in);
+    tenths = (short)(10 * (in - f));
+}
+
 // display the Ticks Per Frame (1 tick ~= 1/60 s)
 void writeStats(char buffer[], unsigned char TPF, float frametime)
 {
+    short i, f1, t1, f2, t2;
+    if (last30_at == -1) // this line will error if the preprocessor struggles
+    {
+        INIT_ARRAY(last, LAST_LEN)
+        INIT_ARRAY(lastfps, LAST_LEN)
+#ifdef LONG_STATS
+        INIT_ARRAY(last, LONG_LAST_LEN)
+#endif
+    }
+
     sprintf(buffer, "TPF: %hu", TPF);
     CtoPstr(buffer);
     MoveTo(7, 15);
     DrawString((unsigned char *)buffer);
 
+    // store stats
+    float frametime2 = (1.0 / (frametime / 1000.0));
+    ADD2_ARRAY(last, LAST_LEN, frametime)
+    ADD2_ARRAY(lastfps, LAST_LEN, frametime2)
+#ifdef LONG_STATS
+    ADD2_ARRAY(last, LONG_LAST_LEN, frametime)
+#endif
+
+    // mean & std fps
+    float mu = MEAN(lastfps, LAST_LEN);
+    float sig = STD(lastfps, mu, LAST_LEN);
+
     // my SE doesn't seem to do %0.1f, so (short) it is
-    sprintf(buffer, "FPS: %hu", (short)(1.0 / (frametime / 1000.0)));
+    // sprintf(buffer, "FPS: %0.1f +- %0.1f", mu, sig);
+    tenthsPlace(mu, f1, t1);
+    tenthsPlace(sig, f2, t2);
+    sprintf(buffer, "FPS: %hu.%hu +- %hu.%hu", f1, t1, f2, t2);
     CtoPstr(buffer);
     MoveTo(7, 15 + 13);
     DrawString((unsigned char *)buffer);
 
-    sprintf(buffer, "FT: %hu ms", (short)frametime);
+    // mean & std frametime
+    mu = MEAN(last, LAST_LEN);
+    sig = STD(last, mu, LAST_LEN);
+
+    // sprintf(buffer, "FT: %0.1f +- %0.1f ms", mu, sig);
+    tenthsPlace(mu, f1, t1);
+    tenthsPlace(sig, f2, t2);
+    sprintf(buffer, "FT: %hu.%hu +- %hu.%hu ms", f1, t1, f2, t2);
     CtoPstr(buffer);
     MoveTo(7, 15 + 13 * 2);
     DrawString((unsigned char *)buffer);
+
+    LOOP_ARRAY(last, LAST_LEN)
+    LOOP_ARRAY(lastfps, LAST_LEN)
+#ifdef LONG_STATS
+    LOOP_ARRAY(last, LONG_LAST_LEN)
+#endif
 }
 
 // display a help message

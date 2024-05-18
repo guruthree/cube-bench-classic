@@ -188,7 +188,7 @@ void main()
 
 	// screen area where TPF is drawn
 	tpfRgn = NewRgn();
-	SetRectRgn(tpfRgn, 0, 0, 100, 45);
+	SetRectRgn(tpfRgn, 0, 0, 130, 45);
 	// screen area where FPU is drawn
 	updateRgn = NewRgn();
 	SetRectRgn(updateRgn, 0, yRes - 40, 80, yRes);

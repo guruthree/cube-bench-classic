@@ -38,30 +38,33 @@ void writeHelp(short startX)
 	short startY = 2;
 	MoveTo(startX, startY += 13); // #1
 	DrawString("\p>>> h: HELP <<<");
-	MoveTo(startX, startY += 13); // #2
+	MoveTo(startX, startY += 13);
 	DrawString("\p`/esc/ret: quit");
-	MoveTo(startX, startY += 13); // #3
-	DrawString("\pn/m/spc: toggle rotate/move");
-	MoveTo(startX, startY += 13); // #4
-	DrawString("\pspc: toggle both");
+	MoveTo(startX, startY += 13);
+	DrawString("\p`b: start benchmark");
+	MoveTo(startX, startY += 13);
+	DrawString("\pn/m: toggle rotate/move");
 	MoveTo(startX, startY += 13); // #5
+	DrawString("\pspc: toggle both");
+	MoveTo(startX, startY += 13);
 	DrawString("\pP: screenshot");
-	MoveTo(startX, startY += 13); // #6
+	MoveTo(startX, startY += 13);
 	DrawString("\pr/R: reset/randomise cubes");
-	MoveTo(startX, startY += 13); // #7
+	MoveTo(startX, startY += 13);
 	DrawString("\pv/c: invert/erase canvas");
-	MoveTo(startX, startY += 13); // #8
+	MoveTo(startX, startY += 13);
 	DrawString("\pf/-/+: fill/resize cube");
-	MoveTo(startX, startY += 13); // #9
-	DrawString("\p1-0: toggle cube");
 	MoveTo(startX, startY += 13); // #10
+	DrawString("\p1-0: toggle cube");
+	MoveTo(startX, startY += 13);
 	DrawString("\pjlikuo: rotation");
-	MoveTo(startX, startY += 13); // #11
+	MoveTo(startX, startY += 13);
 	DrawString("\pJLIKUO: rotation speed");
-	MoveTo(startX, startY += 13); // #12
+	MoveTo(startX, startY += 13);
 	DrawString("\padwsqe: move");
-	MoveTo(startX, startY += 13); // #13
+	MoveTo(startX, startY += 13);
 	DrawString("\pADWSQE: move speed");
+	// 14 lines total
 }
 
 // generate random float, inclusive

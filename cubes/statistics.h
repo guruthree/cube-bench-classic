@@ -15,13 +15,14 @@ private:
 	short len;
 	float *values;
 	short at;
+	Boolean doComplete;
 
 public:
 	// is this a completed benchmark record
 	Boolean completed;
 
 	// initialise to the desired length
-	Statistics(short myLen);
+	Statistics(short myLen, Boolean doPlete);
 	// we need to free the malloc
 	~Statistics();
 

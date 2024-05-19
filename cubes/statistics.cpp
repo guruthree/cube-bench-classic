@@ -8,7 +8,7 @@
 #include "statistics.h"
 
 // initialise to the desired length
-Statistics::Statistics(short myLen)
+Statistics::Statistics(short myLen, Boolean doPlete)
 {
 	mu = 0;
 	sigma = 0;
@@ -16,7 +16,7 @@ Statistics::Statistics(short myLen)
 	values = (float *)calloc(len, sizeof(float));
 	at = 0;
 	reset();
-	completed = 0;
+	doComplete = doPlete;
 }
 
 // we need to free the malloc
@@ -33,14 +33,24 @@ Statistics::~Statistics()
 void Statistics::reset()
 {
 	memset(values, len, sizeof(float));
+	completed = false;
+	at = 0;
 }
 
 // update the next value in the array
 void Statistics::addValue(float newValue)
 {
+	if (completed)
+		return;
 	values[at++] = newValue;
 	if (at == len)
 	{
+		if (doComplete)
+		{
+			completed = true;
+			mean();
+			std();
+		}
 		at = 0;
 	}
 }
@@ -48,6 +58,11 @@ void Statistics::addValue(float newValue)
 // calculate the mean (average) of recorded values
 float Statistics::mean()
 {
+	// if (completed)
+	// {
+	// 	// no point in updating if we're done
+	// 	return;
+	// }
 	short i;
 	double sum = 0;
 	for (i = 0; i < len; i++)
@@ -61,6 +76,11 @@ float Statistics::mean()
 // calcluate the standard deviation of recorded values, assuming mu is up to date
 float Statistics::std()
 {
+	// if (completed)
+	// {
+	// 	// no point in updating if we're done
+	// 	return;
+	// }
 	short i;
 	double sum = 0;
 	for (i = 0; i < len; i++)
@@ -75,11 +95,25 @@ float Statistics::std()
 void Statistics::write(short startY, const char label[])
 {
 	char buffer[40];
+
+	// nothing to show while we're running (the calculating _chugs_)
+	if (doComplete && !completed)
+	{
+		sprintf(buffer, "%s: %hu%% done", label, (100 * at) / len);
+		CtoPstr(buffer);
+		MoveTo(7, startY);
+		DrawString((unsigned char *)buffer);
+		return;
+	}
+
 	short f1, t1, f2, t2;
-	
+
 	// run calculations
-	mean();
-	std();
+	if (!completed)
+	{
+		mean();
+		std();
+	}
 
 	// my SE doesn't seem to do %0.1f, so (short) it is
 	// sprintf(buffer, "FPS: %0.1f +- %0.1f", mu, sig);

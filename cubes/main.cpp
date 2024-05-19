@@ -111,10 +111,11 @@ void main()
 	Microseconds(&currentTimeW);
 	float lastTime = MicrosecondToFloatMillis(&currentTimeW);
 	float currentTime = lastTime;
-	Statistics fps = Statistics(SHORT_STATS);
-	Statistics frametimes = Statistics(SHORT_STATS);
+	Statistics fps = Statistics(SHORT_STATS, false);
+	Statistics frametimes = Statistics(SHORT_STATS, false);
 #ifdef LONG_STATS
-	Statistics frametimes_long = Statistics(LONG_STATS);
+	Boolean benchmarking = false;
+	Statistics frametimes_long = Statistics(LONG_STATS, true);
 #endif
 
 	// colouring stuff
@@ -199,7 +200,7 @@ void main()
 
 	// screen area where TPF is drawn
 	tpfRgn = NewRgn();
-	SetRectRgn(tpfRgn, 0, 0, 130, 45);
+	SetRectRgn(tpfRgn, 0, 0, 160, 15 + 13 * 4 + 1);
 	// screen area where FPU is drawn
 	updateRgn = NewRgn();
 	SetRectRgn(updateRgn, 0, yRes - 40, 80, yRes);
@@ -208,7 +209,7 @@ void main()
 	cubeRgn = NewRgn(); // screen space with cubes in it
 	// screen space where help is drawn
 	helpRgn = NewRgn();
-	SetRectRgn(helpRgn, xRes - HELP_OFFSET, 0, xRes, 175);
+	SetRectRgn(helpRgn, xRes - HELP_OFFSET, 0, xRes, 15 + 13 * 14 + 1);
 
 	// put all the cubes in their programmed positions
 	resetCubes(cubes, activeCubes, xRes, yRes, NUM_CUBES);
@@ -234,6 +235,14 @@ void main()
 
 			case keyDown:
 				keyChar = myEvent.message & charCodeMask;
+#ifdef LONG_STATS
+				// pressing any key other than a save key interrupts the benchmark
+				if (keyChar != 'P' && keyChar != 'T')
+				{
+					benchmarking = false;
+					frametimes_long.reset();
+				}
+#endif
 				switch (keyChar)
 				{
 				// quit
@@ -354,9 +363,9 @@ void main()
 					}
 					break;
 
-				// stop/start bounce collisions
-				case 'b':
-				case 'B':
+				// enable/disable bounce collisions
+				case 'x':
+				case 'X':
 					doBounce = !doBounce;
 					break;
 
@@ -364,6 +373,7 @@ void main()
 				case 'r':
 					doRotate = true;
 					doMove = false;
+					doBounce = false;
 					resetCubes(cubes, activeCubes, xRes, yRes, NUM_CUBES);
 					break;
 
@@ -478,6 +488,33 @@ void main()
 #endif
 					}
 					break;
+
+#ifdef LONG_STATS
+				// run a benchmark - bits of code here copy-pasted from above
+				case 'b':
+				case 'B':
+					benchmarking = true;
+					frametimes_long.reset();
+					// reset cubes
+					doRotate = true;
+					doMove = false;
+					doBounce = false;
+					resetCubes(cubes, activeCubes, xRes, yRes, NUM_CUBES);
+					// clear buffer
+#ifdef USEOFFSCREEN
+					SetGWorld(offScreen, NULL);
+#endif // USEOFFSCREEN
+					EraseRect(&appWindow->portRect);
+#ifdef USEOFFSCREEN
+					SetGWorld(onScreen, onscreenDevice);
+					CopyBits(&(((GrafPtr)offScreen)->portBits),
+							 &(((GrafPtr)onScreen)->portBits),
+							 &(offScreen->portRect),
+							 &(onScreen->portRect),
+							 srcCopy, NULL);
+#endif // USEOFFSCREEN
+					break;
+#endif // LONG_STATS
 
 				default:
 					break;
@@ -653,16 +690,32 @@ void main()
 		frametimes.addValue(timeElapsed);
 		fps.addValue((1.0 / (timeElapsed / 1000.0)));
 #ifdef LONG_STATS
-		frametimes_long.addValue(timeElapsed);
+		if (benchmarking)
+		{
+			frametimes_long.addValue(timeElapsed);
+			if (frametimes_long.completed)
+			{
+				benchmarking = false;
+				// don't move anything after the benchmark is finished so that what's on
+				// screen reflects the benchmark settings - although technically this is
+				// one frame after the last included in the benchmark...
+				doRotate = false;
+				doMove = false;
+				doBounce = false;
+			}
+		}
 #endif
 
 		// write TPF, stats, & CPU/FPU situation
 		ForeColor(fgColor);
 		writeTPF(TPF); // MoveTo(7, 15); before writing
-		fps.write(15 + 13, "FPS: ");
-		frametimes.write(15 + 13 * 2, "FT: ");
+		fps.write(15 + 13, "FPS");
+		frametimes.write(15 + 13 * 2, "FT");
 #ifdef LONG_STATS
-		// frametimes_long.write(15 + 13 * 3, "Benchmark: ");
+		if (benchmarking || frametimes_long.completed)
+		{
+			frametimes_long.write(15 + 13 * 3, "Benchmark");
+		}
 #endif
 		MoveTo(7, yRes - 7);
 		DrawString((unsigned char *)FPUbuffer);

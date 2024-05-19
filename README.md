@@ -42,10 +42,13 @@ Command-R to run from within Symantec C++. To quit, click anywhere outside the w
 
 There are a lot of keyboard commands, check out the section below for details, or press the h key to bring up on screen help. More cubes can be shown on screen and the cube moved, or set to bounce.
 
+Press the b key to begin a benchmark. This will render the same 3600 frames and will take 5-10 minutes. Pressing any keys while the benchmark is running will cancel the benchmark. The final result is shown as a frame time stat (see below). Once the benchmark has run the cubes will stop moving. At this point you may screenshot using the shift-p to record the result. Any other key will clear the result.
+
 Performance is displayed a few different ways:
 * First is a per-frame measure of TPF, or ticks per frame. One tick corresponds to one screen refresh, generally about 1/60th of a second.
 * Second, a more traditional FPS or frames per second is displayed. This is a mean taken over a 30 frame rolling average plus or minus the standard deviation. 
 * Third is FT or frame time, which is the time taken to generate each frame in milliseconds. This is inversely proportional to FPS and is also displayed as a 30 frame mean plus or minus the standard deviation.
+* Fourth is the benchmark result as mean frame time plus or minus the standard deviation after 3600 frames.
 
 The 95th percentile FPS will be approximately the mean minus two standard deviations, and the 99th percentile approximately minus three standard deviations.
 
@@ -58,7 +61,8 @@ Tested under System 7.5.3 on an LC, LC II, LC II, LC 475, and BasiliskII 1.0.0_p
 | `   | Quit                                      |
 | ret | Quit                                      |
 | esc | Quit                                      |
-| c/C | Erase canvas                              |
+| b/B | Run benchmark                             |
+| c/C | Clear (earase) canvas                     |
 | f/F | Toggle filled cube faces                  |
 | h/H | On screen help message                    |
 | m/M | Toggle movement                           |
@@ -93,7 +97,7 @@ Immediately quits
 
 Multiple screens, maybe?
 
-* Window size is determined from `screenBits`, which documentation suggests doesn't acknowledge the existence of multiple screens. If you have two screens, meaning the window may span across multiple screens.
+* Window size is determined from `screenBits`, which documentation suggests doesn't acknowledge the existence of multiple screens. If you have two screens, the window may span across multiple screens.
 
 1-bit colour
 

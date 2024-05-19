@@ -7,6 +7,7 @@
 #include "vectormath2.h"
 #include "bubblesort.h"
 #include "screenshot.h"
+#include "statistics.h"
 
 // how much smaller than the resolution to make the window
 #define SHRINK 40
@@ -23,6 +24,12 @@
 
 // offset from the right for help message
 #define HELP_OFFSET 202
+
+// moving average of 30 frames worth to calcualate on screen stats
+#define SHORT_STATS 30
+
+// keep a 1 minute (full benchmark) record of stats
+#define LONG_STATS 3600
 
 void main()
 {
@@ -94,7 +101,6 @@ void main()
 
 	// benchmark variables
 	unsigned char TPF = 0;	// ticks per frame
-	char buffer[20];		// for displaying stats
 	unsigned long int last; // time of last frame (in ticks)
 	float timeElapsed = 0;	// in milliseconds
 	// apparently microseconds might not be supported everywhere?
@@ -105,6 +111,11 @@ void main()
 	Microseconds(&currentTimeW);
 	float lastTime = MicrosecondToFloatMillis(&currentTimeW);
 	float currentTime = lastTime;
+	Statistics fps = Statistics(SHORT_STATS);
+	Statistics frametimes = Statistics(SHORT_STATS);
+#ifdef LONG_STATS
+	Statistics frametimes_long = Statistics(LONG_STATS);
+#endif
 
 	// colouring stuff
 	long fgColor = blackColor;
@@ -638,9 +649,21 @@ void main()
 		}
 		cubeAt = 0; // reset for next loop
 
+		// record stats
+		frametimes.addValue(timeElapsed);
+		fps.addValue((1.0 / (timeElapsed / 1000.0)));
+#ifdef LONG_STATS
+		frametimes_long.addValue(timeElapsed);
+#endif
+
 		// write TPF, stats, & CPU/FPU situation
 		ForeColor(fgColor);
-		writeStats(buffer, TPF, timeElapsed);
+		writeTPF(TPF); // MoveTo(7, 15); before writing
+		fps.write(15 + 13, "FPS: ");
+		frametimes.write(15 + 13 * 2, "FT: ");
+#ifdef LONG_STATS
+		// frametimes_long.write(15 + 13 * 3, "Benchmark: ");
+#endif
 		MoveTo(7, yRes - 7);
 		DrawString((unsigned char *)FPUbuffer);
 

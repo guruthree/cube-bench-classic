@@ -20,9 +20,6 @@ void InitToolbox();
 // http://preserve.mactech.com/articles/develop/issue_26/minow.html
 float MicrosecondToFloatMillis(const UnsignedWide *time);
 
-// display the Ticks Per Frame (1 tick ~= 1/60 s)
-void writeStats(char buffer[], unsigned char TPF, float frametime);
-
 // display a help message
 void writeHelp(short startX);
 

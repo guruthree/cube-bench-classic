@@ -38,15 +38,18 @@ A 512 K partition size is fine for 800x600 at 256 colours, which is as high as I
 
 ## Usage
 
-Command-R to run from within Symantec C++. To quit, click anywhere outside the window.
+Command-R to run from within Symantec C++. To quit, click anywhere outside the window or press return or escape.
 
-There are a lot of keyboard commands, check out the but switch statement in [main.cpp](cubes/main.cpp) for details.
+There are a lot of keyboard commands, check out the section below for details, or press the h key to bring up on screen help. More cubes can be shown on screen and the cube moved, or set to bounce.
 
-At some point the h key will bring up on screen help.
+Performance is displayed a few different ways:
+* First is a per-frame measure of TPF, or ticks per frame. One tick corresponds to one screen refresh, generally about 1/60th of a second.
+* Second, a more traditional FPS or frames per second is displayed. This is a mean taken over a 30 frame rolling average plus or minus the standard deviation. 
+* Third is FT or frame time, which is the time taken to generate each frame in milliseconds. This is inversely proportional to FPS and is also displayed as a 30 frame mean plus or minus the standard deviation.
+
+The 95th percentile FPS will be approximately the mean minus two standard deviations, and the 99th percentile approximately minus three standard deviations.
 
 Tested under System 7.5.3 on an LC, LC II, LC II, LC 475, and BasiliskII 1.0.0_p20240224. Seems to crash in BasiliskII with a large window size for reasons unknown. Tested under System 7.1 on a SE.
-
-Performance is displayed as TPF, or ticks per frame. One tick corresponds to one screen refresh. For most people using a mac to VGA adapter one tick will generally be about 1/60th of a second.
 
 ### Key bindings
 

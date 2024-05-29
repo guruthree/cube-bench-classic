@@ -1,35 +1,7 @@
 // needed for GWorldPtr
 #include <QDOffscreen.h>
 
-#include "savedialog.h"
-
-OSErr writeData(short fid, long *bytesToWrite, void *dataToWrite)
-{
-	OSErr err = FSWrite(fid, bytesToWrite, dataToWrite);
-	if (err != noErr)
-	{
-		SysBeep(1);
-	}
-	return err;
-}
-
-// BMP needs data in LSB, while 68k as in MSB, so we need to swap byte order
-#define WRITE_TYPE(TYPE)                                       \
-	OSErr write_##TYPE(short fid, TYPE data)                   \
-	{                                                          \
-		long bytesToWrite = sizeof(TYPE);                      \
-		unsigned char dataToWrite[sizeof(TYPE)];               \
-		for (short i = 0; i < sizeof(data); i++)               \
-		{                                                      \
-			dataToWrite[i] = (unsigned char)(data >> (i * 8)); \
-		}                                                      \
-		return writeData(fid, &bytesToWrite, dataToWrite);     \
-	}
-
-// this gives us write_char(fid, byte), write_type(fid, short), write_type(fid, long)
-WRITE_TYPE(char)
-WRITE_TYPE(short)
-WRITE_TYPE(long)
+#include "filefunctions.h"
 
 // save a copy of the offScreen world to a bitmap file
 // default response to errors will be to beep and return

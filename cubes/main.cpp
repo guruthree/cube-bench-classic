@@ -514,6 +514,13 @@ void main()
 							 srcCopy, NULL);
 #endif // USEOFFSCREEN
 					break;
+
+				// save stats to a file
+				case 'T':
+					// if (frametimes_long.completed)
+					// {
+						frametimes_long.writeToFile("\pStats.txt");
+					// }
 #endif // LONG_STATS
 
 				default:

@@ -1,5 +1,7 @@
 // Save dialogue functions
 
+#include <string.h> // strlen
+
 // write an array of data
 OSErr writeData(short fid, long *bytesToWrite, void *dataToWrite)
 {
@@ -28,6 +30,18 @@ OSErr writeData(short fid, long *bytesToWrite, void *dataToWrite)
 WRITE_TYPE(char)
 WRITE_TYPE(short)
 WRITE_TYPE(long)
+
+// write a string to the file
+OSErr writeString(short fid, char stringToWrite[])
+{
+	// if the string is a pstring convert to a regular string
+	if (stringToWrite[0] == '\p')
+	{
+		stringToWrite++;
+	}
+	long bytesToWrite = strlen(stringToWrite);
+	return writeData(fid, &bytesToWrite, stringToWrite);
+}
 
 // Open up a save dialogue
 OSErr saveDialog(StandardFileReply *myReply, const unsigned char defaultName[])

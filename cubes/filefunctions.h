@@ -16,6 +16,9 @@ WRITE_TYPE(char)
 WRITE_TYPE(short)
 WRITE_TYPE(long)
 
+// write a string to the file
+OSErr writeString(short fid, char stringToWrite[]);
+
 // Open up a save dialogue
 OSErr saveDialog(StandardFileReply *myReply, const unsigned char defaultName[]);
 

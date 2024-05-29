@@ -1,6 +1,8 @@
 // needed for GWorldPtr
 #include <QDOffscreen.h>
 
+#include "savedialog.h"
+
 OSErr writeData(short fid, long *bytesToWrite, void *dataToWrite)
 {
 	OSErr err = FSWrite(fid, bytesToWrite, dataToWrite);
@@ -39,43 +41,20 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 
 	/* Figure out file stuff */
 
-	// StandardPutFile to open a file save dialog
+	// Open a StandardPutFile for saving (via saveDialog)
 	StandardFileReply myReply;
-
-	// might technically want to check this exists with gestalt first
-	StandardPutFile(NULL, "\pUntitled.BMP", &myReply);
-
-	if (!myReply.sfGood)
+	err = saveDialog(&myReply, "\pUntitled.BMP");
+	if (err != noErr)
 	{
-		// user cancelled
-		return fnfErr;
+		return err;
 	}
 
-	if (myReply.sfIsFolder || myReply.sfIsVolume)
-	{
-		// user selected a folder or selected a volume, neither will work here
-		SysBeep(1);
-		return notAFileErr;
-	}
-
+	// path to the file
 	FSSpec outFile = myReply.sfFile;
-
-	// checked to make sure it's a file, now not that it's something that already exists
-	if (myReply.sfReplacing)
-	{
-		// user elected to replace a file, delete the existing one to put a new
-		err = FSpDelete(&outFile);
-		if (err != noErr)
-		{
-			SysBeep(1);
-			return err;
-		}
-	}
 
 	// create empty file with data and resource forks?
 	// 'CUBE' is the creator, which is whatever we want
 	// 'bmap' should be the 4 character resource fork id/code (via the ResEdit Reference)
-	// don't do this if we're replacing
 	err = FSpCreate(&outFile, 'CUBE', 'bmap', myReply.sfScript);
 	if (err != noErr)
 	{

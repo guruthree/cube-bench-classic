@@ -28,7 +28,27 @@ You may want to set Symantec C++ and THINK C options (Compiler Settings) to make
 
 ### Line endings
 
-Note that Classic Mac OS expects CR line endings. This repository currently is set to use CRLF line endings via .gitattributes so that files copied across are somewhat readable. For full readability they will need to be converted using the `dos2unix` and `unix2mac` tools from the [`dos2unix`](https://waterlan.home.xs4all.nl/dos2unix.html) package.
+This repository currently is set to use CRLF line endings via .gitattributes so that files are somewhat readable no matter what operating system they are read on.
+
+Classic Mac OS expects CR line endings, so opening the files as is will show a square character. To remove these, convert the files using the `dos2unix` and `unix2mac` tools from the [`dos2unix`](https://waterlan.home.xs4all.nl/dos2unix.html) package.
+
+Convert to CR line endings:
+
+```bash
+find . -type f -a \( -name '*.cpp' -o -name '*.h' \) | xargs dos2unix
+find . -type f -a \( -name '*.cpp' -o -name '*.h' \) | xargs unix2mac
+```
+
+Convert back to CRLF line endings:
+
+```bash
+find . -type f -a \( -name '*.cpp' -o -name '*.h' \) | xargs mac2unix
+find . -type f -a \( -name '*.cpp' -o -name '*.h' \) | xargs unix2dos
+```
+
+### Configuration
+
+Program configuration options are stored in `config.h`. Resolutions can be tweaked with the `SHRINK` setting here, changing how much smaller the window is than screen resolution. `LONG_STATS` defines the number of frames that make up the benchmark, and changing it will change the length of the benchmark.
 
 ### Versioning
 
@@ -74,7 +94,7 @@ Tested under System 7.5.3 on an LC, LC II, LC II, LC 475, and BasiliskII 1.0.0_p
 | ret | Quit                                      |
 | esc | Quit                                      |
 | b/B | Run benchmark                             |
-| c/C | Clear (earase) canvas                     |
+| c/C | Clear (erase) canvas                     |
 | f/F | Toggle filled cube faces                  |
 | h/H | On screen help message                    |
 | m/M | Toggle movement                           |
@@ -118,9 +138,9 @@ Multiple screens, maybe?
 
 Saving screenshots
 
-* Sometimes the background looks a bit pink. Are you in 16-bit ("Thousands of Colors") mode? 16-bit bitmaps are scuffed, with missing green precision, due to Motorola 68000 CPUs being big-endian and BMP needing little-endian (as written at least). What image editors do with the left over bits varies. Try opening in another image editor, e.g. the [GNU Image Manipulation Program](https://www.gimp.org/).
+* Sometimes the background looks a bit pink. Are you in 16-bit ("Thousands of Colors") mode? 16-bit bitmaps are scuffed, with missing green precision, due to Motorola 68000 CPUs being big-endian and BMP needing little-endian (as written at least). What image editors do with the left over bits varies. Try opening in another image editor, e.g., the [GNU Image Manipulation Program](https://www.gimp.org/).
 
-* There's some garbage on the sides of the screenshot. This is expected. Sometimes the buffer we are saving a copy off is larger than what is displayed on scree due to Apple aligning the underlying buffer to memory for faster copies. You may safely ignore these parts of the image.
+* There's some garbage on the sides of the screenshot. This is expected. Sometimes the buffer we are saving a copy of is larger than what is displayed on screen due to Apple aligning the underlying buffer to memory for faster copies. You may safely ignore these parts of the image.
 
 * One beep during saving a screenshot indicates an issue selecting the save file.
 

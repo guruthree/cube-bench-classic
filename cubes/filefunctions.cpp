@@ -35,8 +35,10 @@ WRITE_TYPE(long)
 OSErr writeString(short fid, char stringToWrite[])
 {
 	// if the string is a pstring convert to a regular string
-	if (stringToWrite[0] == '\p')
+	if (stringToWrite[0] == '\p' || stringToWrite[0] == strlen(stringToWrite + 1))
 	{
+		// this detection will false positive if the first character happens to equal the length
+		// e.g. if the string starts with '0' and is 41 bytes long
 		stringToWrite++;
 	}
 	long bytesToWrite = strlen(stringToWrite);

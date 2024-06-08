@@ -497,7 +497,7 @@ void main()
 
 				// save stats to a file
 				case 'T':
-					frametimes_long.writeToFile("\pStats.txt", offScreen);
+					frametimes_long.writeToFile("\pStats.txt", offScreen, FPUbuffer, activeCubes, wireFrame);
 #endif // LONG_STATS
 
 				default:

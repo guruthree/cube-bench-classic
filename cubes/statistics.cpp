@@ -8,6 +8,7 @@
 #include <stdio.h>	// sprintf
 #include <string.h> // memset
 
+#include "config.h"
 #include "statistics.h"
 #include "filefunctions.h"
 #include "version.h"
@@ -131,7 +132,8 @@ void Statistics::write(short startY, const char label[])
 }
 
 // write the stats out to a file
-OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offScreen)
+OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offScreen,
+							  char FPUbuffer[], Boolean *activeCubes, Boolean wireFrame)
 {
 	// note file code here based on code from takeScreenshot()
 	// the extra arguments are for writing out system and config info, etc
@@ -196,13 +198,33 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offSc
 	writeString(fid, buffer);
 
 	// cpu & fpu
-	// TODO
-
-	// number of cubes (& which cubes)
-	// TODO
+	writeString(fid, "System specs, ");
+	writeString(fid, FPUbuffer);
+	write_char(fid, '\r');
 
 	// filled or solid
-	// TODO
+	if (wireFrame)
+	{
+		writeString(fid, "Cube type, wireframe\r");
+	}
+	else
+	{
+		writeString(fid, "Cube type, solid\r");
+	}
+
+	// number of cubes (& which cubes)
+	for (i = 0; i < NUM_CUBES; i++)
+	{
+		if (activeCubes[i])
+		{
+			sprintf(buffer, "Cube %hu, active\r", i);
+		}
+		else
+		{
+			sprintf(buffer, "Cube %hu, inactive\r", i);
+		}
+		writeString(fid, buffer);
+	}
 
 	if (completed)
 	{

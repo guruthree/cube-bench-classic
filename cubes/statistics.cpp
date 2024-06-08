@@ -1,5 +1,8 @@
 // things for showing fps and benchmarking stats
 
+// needed for GWorldPtr
+#include <QDOffscreen.h>
+
 #include <math.h>
 #include <stdlib.h> // malloc & free
 #include <stdio.h>	// sprintf
@@ -128,9 +131,10 @@ void Statistics::write(short startY, const char label[])
 }
 
 // write the stats out to a file
-OSErr Statistics::writeToFile(const unsigned char defaultName[])
+OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offScreen)
 {
 	// note file code here based on code from takeScreenshot()
+	// the extra arguments are for writing out system and config info, etc
 
 	short i; // for looping
 	OSErr err = noErr;
@@ -166,30 +170,58 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[])
 		return err;
 	}
 
-	// we want to write
-	// the current configuration
-	//     resolution
-	//     colour depth
-	//     cpu & fpu
-	//     number of cubes (& which cubes)
-	//     filled or solid
-	// summary stats
-	//     fps
-	//     frame time
-	// all individual frame times
-
+	// write the benchmark results
 	writeString(fid, "Cube Bench Classic Benchmark results\r");
+
+	// information about the version
+	writeString(fid, "Version, ");
 	writeString(fid, CUBE_VERSION);
 	write_char(fid, '\r');
 
-	writeString(fid, "Frame Number, Frame Time\r");
-	for (i = 0; i < len; i++)
+	// screen resolution
+	sprintf(buffer, "Resolution, %hu x %hu\r",
+			screenBits.bounds.right - screenBits.bounds.left,
+			screenBits.bounds.bottom - screenBits.bounds.top);
+	writeString(fid, buffer);
+
+	// colour depth (see screenshot.cpp)
+	PixMapHandle pixmap = GetGWorldPixMap(offScreen);
+	sprintf(buffer, "Colour depth, %hu bpp\r", (**(pixmap)).pixelSize);
+	writeString(fid, buffer);
+
+	// window size
+	sprintf(buffer, "Window size, %hu x %hu\r",
+			(**pixmap).bounds.right - (**pixmap).bounds.left,
+			(**pixmap).bounds.bottom - (**pixmap).bounds.top);
+	writeString(fid, buffer);
+
+	// cpu & fpu
+	// TODO
+
+	// number of cubes (& which cubes)
+	// TODO
+
+	// filled or solid
+	// TODO
+
+	if (completed)
 	{
-		tenthsPlace(values[i], f1, t1);
-		sprintf(buffer, "%hu, %hu.%hu\r", i, f1, t1);
-		writeString(fid, buffer);
+		// fps summary
+		// TODO
+
+		// frame time summary
+		// TODO
+
+		// write out all individual frame times
+		writeString(fid, "Frame Number, Frame Time\r");
+		for (i = 0; i < len; i++)
+		{
+			tenthsPlace(values[i], f1, t1);
+			sprintf(buffer, "%hu, %hu.%hu\r", i, f1, t1);
+			writeString(fid, buffer);
+		}
+		write_char(fid, '\r');
 	}
-	write_char(fid, '\r');
 
 	err = FSClose(fid);
 	if (err != noErr)

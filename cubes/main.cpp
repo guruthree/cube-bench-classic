@@ -497,10 +497,7 @@ void main()
 
 				// save stats to a file
 				case 'T':
-					// if (frametimes_long.completed)
-					// {
-					frametimes_long.writeToFile("\pStats.txt");
-					// }
+					frametimes_long.writeToFile("\pStats.txt", offScreen);
 #endif // LONG_STATS
 
 				default:

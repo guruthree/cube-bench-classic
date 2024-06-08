@@ -41,7 +41,7 @@ public:
 	void write(short startY, const char label[]);
 
 	// write the stats out to a file
-	OSErr writeToFile(const unsigned char defaultName[]);
+	OSErr writeToFile(const unsigned char defaultName[], GWorldPtr offScreen);
 };
 
 // need a way to show decimals on the SE, which doesn't agree with %0.1f

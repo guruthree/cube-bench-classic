@@ -3,6 +3,7 @@
 #include <stdlib.h> // abs
 #include <string.h> // strcpy & strcat
 
+#include "config.h"
 #include "cube.h"
 
 // the functions from main in their own file to speed up
@@ -80,7 +81,7 @@ float rand(float mi, float ma)
 }
 
 // reset all of the cubes
-void resetCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes, short num_cubes)
+void resetCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes)
 {
 	short i, j, c = 0;
 
@@ -90,7 +91,7 @@ void resetCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes, sho
 		cubes[c]->reset();
 		cubes[c]->updateSize(100);
 	}
-	c++;
+	c++; if (c >= NUM_CUBES) return;
 
 	short offsets[2] = {-1, 1};
 
@@ -108,7 +109,7 @@ void resetCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes, sho
 				// cubes[c]->dangle.y *= offsets[j];
 				cubes[c]->dangle.z *= offsets[j];
 			}
-			c++;
+			c++; if (c >= NUM_CUBES) return;
 		}
 	}
 
@@ -127,7 +128,7 @@ void resetCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes, sho
 			cubes[c]->dangle.y *= -1;
 			cubes[c]->dangle.z *= -1;
 		}
-		c++;
+		c++; if (c >= NUM_CUBES) return;
 	}
 
 	// cubes 7-9
@@ -145,7 +146,7 @@ void resetCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes, sho
 			cubes[c]->dangle.y *= offsets[i];
 			cubes[c]->dangle.z *= -1;
 		}
-		c++;
+		c++; if (c >= NUM_CUBES) return;
 	}
 
 	// cube 10
@@ -164,10 +165,10 @@ void resetCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes, sho
 }
 
 // randomise all of the cubes
-void randomiseCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes, short num_cubes)
+void randomiseCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes)
 {
 	short i;
-	for (i = 0; i < num_cubes; i++)
+	for (i = 0; i < NUM_CUBES; i++)
 	{
 		if (activeCubes[i])
 		{

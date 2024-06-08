@@ -27,10 +27,10 @@ void writeHelp(short startX);
 float rand(float mi, float ma);
 
 // reset all of the cubes
-void resetCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes, short num_cubes);
+void resetCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes);
 
 // randomise all of the cubes
-void randomiseCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes, short num_cubes);
+void randomiseCubes(Cube *cubes[], Boolean *activeCubes, short xRes, short yRes);
 
 // gather some info about the system
 void getCPUandFPU(char FPUbuffer[], SysEnvRec *sys_info);

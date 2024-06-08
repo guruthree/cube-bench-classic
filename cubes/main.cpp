@@ -2,36 +2,13 @@
 
 #include <QDOffscreen.h>
 
+#include "config.h"
 #include "functions.h"
 #include "cube.h"
 #include "vectormath2.h"
 #include "bubblesort.h"
 #include "screenshot.h"
 #include "statistics.h"
-
-// how much smaller than the resolution to make the window
-#define SHRINK 40
-
-// use back buffer to render to, at the cost of some performance
-#define USEOFFSCREEN
-
-// clear the entire/canvase back buffer
-// (instead of just the cube by writing over it)
-// #define ERASECANVAS
-
-// how many cubes we could be rendering
-#define NUM_CUBES 10
-
-// offset from the right for help message
-#define HELP_OFFSET 202
-
-// moving average of 30 frames worth to calcualate on screen stats
-#define SHORT_STATS 30
-
-// number of frames to make up the benchmark
-// keep a record of frame times for the entire benchmark
-// at 60 fps this would be a 30 second benchmark
-#define LONG_STATS 1800
 
 void main()
 {
@@ -214,7 +191,7 @@ void main()
 	SetRectRgn(helpRgn, xRes - HELP_OFFSET, 0, xRes, 15 + 13 * 14 + 1);
 
 	// put all the cubes in their programmed positions
-	resetCubes(cubes, activeCubes, xRes, yRes, NUM_CUBES);
+	resetCubes(cubes, activeCubes, xRes, yRes);
 
 	// SysBeep(1); // init OK
 	running = true;
@@ -377,12 +354,12 @@ void main()
 					doRotate = true;
 					doMove = false;
 					doBounce = false;
-					resetCubes(cubes, activeCubes, xRes, yRes, NUM_CUBES);
+					resetCubes(cubes, activeCubes, xRes, yRes);
 					break;
 
 				// randomise rotation & speed
 				case 'R':
-					randomiseCubes(cubes, activeCubes, xRes, yRes, NUM_CUBES);
+					randomiseCubes(cubes, activeCubes, xRes, yRes);
 					break;
 
 				// black background, white text (invert)
@@ -502,7 +479,7 @@ void main()
 					doRotate = true;
 					doMove = false;
 					doBounce = false;
-					resetCubes(cubes, activeCubes, xRes, yRes, NUM_CUBES);
+					resetCubes(cubes, activeCubes, xRes, yRes);
 					// clear buffer
 #ifdef USEOFFSCREEN
 					SetGWorld(offScreen, NULL);

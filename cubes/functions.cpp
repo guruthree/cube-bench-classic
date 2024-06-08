@@ -49,6 +49,8 @@ void writeHelp(short startX)
 	MoveTo(startX, startY += 13);
 	DrawString("\pP: screenshot");
 	MoveTo(startX, startY += 13);
+	DrawString("\pT: save results to txt");
+	MoveTo(startX, startY += 13);
 	DrawString("\pr/R: reset/randomise cubes");
 	MoveTo(startX, startY += 13);
 	DrawString("\pv/c: invert/erase canvas");
@@ -64,7 +66,7 @@ void writeHelp(short startX)
 	DrawString("\padwsqe: move");
 	MoveTo(startX, startY += 13);
 	DrawString("\pADWSQE: move speed");
-	// 14 lines total
+	// 15 lines total
 }
 
 // generate random float, inclusive

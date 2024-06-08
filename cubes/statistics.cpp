@@ -7,6 +7,7 @@
 
 #include "statistics.h"
 #include "filefunctions.h"
+#include "version.h"
 
 // initialise to the desired length
 Statistics::Statistics(short myLen, Boolean doPlete)
@@ -134,6 +135,8 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[])
 	short i; // for looping
 	OSErr err = noErr;
 	short fid;
+	char buffer[40]; // for writing out
+	short f1, t1;
 
 	// Open a StandardPutFile for saving (via saveDialog)
 	StandardFileReply myReply;
@@ -175,9 +178,17 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[])
 	//     frame time
 	// all individual frame times
 
-	writeString(fid, "Hello World!");
+	writeString(fid, "Cube Bench Classic Benchmark results\r");
+	writeString(fid, CUBE_VERSION);
 	write_char(fid, '\r');
-	writeString(fid, "It's good to see you");
+
+	writeString(fid, "Frame Number, Frame Time\r");
+	for (i = 0; i < len; i++)
+	{
+		tenthsPlace(values[i], f1, t1);
+		sprintf(buffer, "%hu, %hu.%hu\r", i, f1, t1);
+		writeString(fid, buffer);
+	}
 	write_char(fid, '\r');
 
 	err = FSClose(fid);

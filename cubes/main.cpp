@@ -28,8 +28,10 @@
 // moving average of 30 frames worth to calcualate on screen stats
 #define SHORT_STATS 30
 
-// keep a 1 minute (full benchmark) record of stats
-#define LONG_STATS 3600
+// number of frames to make up the benchmark
+// keep a record of frame times for the entire benchmark
+// at 60 fps this would be a 30 second benchmark
+#define LONG_STATS 1800
 
 void main()
 {
@@ -236,8 +238,9 @@ void main()
 			case keyDown:
 				keyChar = myEvent.message & charCodeMask;
 #ifdef LONG_STATS
-				// pressing any key other than a save key interrupts the benchmark
-				if (keyChar != 'P' && keyChar != 'T')
+				// if benchmarking pressing any key cancels
+				// once complete pressing any key other than a save key resets
+				if (benchmarking || (frametimes_long.completed && keyChar != 'P' && keyChar != 'T'))
 				{
 					benchmarking = false;
 					frametimes_long.reset();
@@ -519,7 +522,7 @@ void main()
 				case 'T':
 					// if (frametimes_long.completed)
 					// {
-						frametimes_long.writeToFile("\pStats.txt");
+					frametimes_long.writeToFile("\pStats.txt");
 					// }
 #endif // LONG_STATS
 

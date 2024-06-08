@@ -30,6 +30,18 @@ You may want to set Symantec C++ and THINK C options (Compiler Settings) to make
 
 Note that Classic Mac OS expects CR line endings. This repository currently is set to use CRLF line endings via .gitattributes so that files copied across are somewhat readable. For full readability they will need to be converted using the `dos2unix` and `unix2mac` tools from the [`dos2unix`](https://waterlan.home.xs4all.nl/dos2unix.html) package.
 
+### Versioning
+
+Program version is kept in `CUBE_VERSION` defined in `version.h`. This can be updated automatically with a `.git/hooks/post-commit` script containing
+
+```bash
+#!/bin/bash
+COMMIT_HASH=$(git rev-parse --short HEAD)
+VERSION_FILE="cubes/version.h"
+echo "Updating version to $COMMIT_HASH"
+sed -i "s/[0-9a-f]\{7\}/$COMMIT_HASH/" $VERSION_FILE
+```
+
 ## Partition size
 
 If your Mac has as resolution higher than 640x480 at 256 colours, you will need to increase the partition size in order to run the application. This can either be done using Get Info (⌘I) in the Finder and entering a larger 'Preferred size', or during compilation going to the 'Project' menu, selecting 'Set Project Type...', and entering a larger value in the 'Partition (K)' field.

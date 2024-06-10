@@ -58,7 +58,7 @@ Program version is kept in `CUBE_VERSION` defined in `version.h`. This can be up
 #!/bin/bash
 COMMIT_HASH=$(git rev-parse --short HEAD)
 VERSION_FILE="cubes/version.h"
-echo "Updating version to $COMMIT_HASH"
+echo "Updating version.h to $COMMIT_HASH"
 sed -i "s/[0-9a-f]\{7\}/$COMMIT_HASH/" $VERSION_FILE
 ```
 

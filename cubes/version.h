@@ -3,6 +3,6 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define CUBE_VERSION "d4f3689"
+#define CUBE_VERSION "be7a001"
 
 #endif

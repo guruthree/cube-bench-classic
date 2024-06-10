@@ -3,19 +3,19 @@
 
 Cube Bench Classic is a very simple benchmark involving a cube designed for Classic Mac OS System 7. Requires Color QuickDraw.
 
-I wanted something a bit more relatable than a bar chart or flashing patterned rectangles to get a feel for performance differences between classic Macs (LC III, etc.). So for #Marchintosh 2024, I wrote my own benchmark with the classic bouncing cube(s).
+I wanted something a bit more relatable than a bar chart or flashing patterned rectangles to get a feel for performance differences between classic Macs (LC III, etc.). So for #Marchintosh 2024, I wrote my own benchmark with the classic spinning cube(s).
 
 ![Screenshot of the benchmark](screenshot.png)
 
-Cube Bench Classic is designed to stress the CPU, FPU, and memory bus. Being a System 7 application, everything software rendering is pretty much the only game in town. Cube Bench Classic uses floating point arithmetic for pretty much everything to stress the FPU. Particularly, the cube is rotated using transcendentals (i.e., trigonometric functions).
+Cube Bench Classic is designed to stress the CPU, FPU, and memory bus. Being a System 7 application, software rendering is pretty much the only game in town. Cube Bench Classic uses floating point arithmetic for pretty much everything to stress the CPU (or FPU if present). Particularly, the cube is rotated using transcendentals (i.e., trigonometric functions).
 
-Drawing on the screen is done using QuickDraw lines and filled polygons. Every QuickDraw call seems to force a screen refresh so something had to be done to avoid flickering. There's no way to flip buffers in QuickDraw that I could, so the usual double-buffering wasn't an option. Instead, rendering is done on an Offscreen Graphics World (back buffer) before copying to the Onscreen Graphics World (front buffer). This stresses the memory bus.
+Drawing on the screen is done using QuickDraw lines and filled polygons. Every QuickDraw call seems to force a screen refresh so something had to be done to avoid flickering. There's no way to flip buffers in QuickDraw that I could find, so the usual double-buffering wasn't an option. Instead, rendering is done on an Offscreen Graphics World (back buffer) before copying to the Onscreen Graphics World (front buffer). This stresses the memory bus.
 
 ## Compilation
 
-Developed with Symantec C++ for Macintosh 7.0, using a mix of real hardware, working in BasiliskII, or in VS Code. Mostly in BasiliskII.
+Developed with Symantec C++ for Macintosh 7.0, using a mix of real hardware, working in Symantec C++ in BasiliskII or VS Code. Probably an even split BasiliskII.
 
-To compile, open the Project Manager and create a new Mac Application Project. Add the contents of cubes/ and then add a few libraries:
+To compile, open the Project Manager and create a new Mac Application Project. Add the contents of `cubes/` folder and then add a few libraries:
 
 * ANSI++
 * CPlusLib
@@ -28,7 +28,7 @@ You may want to set Symantec C++ and THINK C options (Compiler Settings) to make
 
 ### Line endings
 
-This repository currently is set to use CRLF line endings via .gitattributes so that files are somewhat readable no matter what operating system they are read on.
+This repository currently is set to use CRLF line endings via `.gitattributes` file so that files are somewhat readable no matter what operating system they are read on.
 
 Classic Mac OS expects CR line endings, so opening the files as is will show a square character. To remove these, convert the files using the `dos2unix` and `unix2mac` tools from the [`dos2unix`](https://waterlan.home.xs4all.nl/dos2unix.html) package.
 
@@ -52,7 +52,7 @@ Program configuration options are stored in `config.h`. Resolutions can be tweak
 
 ### Versioning
 
-Program version is kept in `CUBE_VERSION` defined in `version.h`. This can be updated automatically with a `.git/hooks/post-commit` script containing
+Program version is kept in `CUBE_VERSION` defined in `version.h`. This can be updated automatically upon a git commit with a `.git/hooks/post-commit` script containing
 
 ```bash
 #!/bin/bash
@@ -66,27 +66,29 @@ sed -i "s/[0-9a-f]\{7\}/$COMMIT_HASH/" $VERSION_FILE
 
 If your Mac has as resolution higher than 640x480 at 256 colours, you will need to increase the partition size in order to run the application. This can either be done using Get Info (⌘I) in the Finder and entering a larger 'Preferred size', or during compilation going to the 'Project' menu, selecting 'Set Project Type...', and entering a larger value in the 'Partition (K)' field.
 
-A 512 K partition size is fine for 800x600 at 256 colours, which is as high as I can test on real hardware.
+A 512 K partition size is fine for 800x600 at 256 colours.
 
 ## Usage
 
-Command-R to run from within Symantec C++. To quit, click anywhere outside the window or press return or escape.
+Command-R to run from within Symantec C++. To quit, click anywhere outside the window, press return, or press escape.
 
 There are a lot of keyboard commands, check out the section below for details, or press the h key to bring up on screen help. More cubes can be shown on screen and the cube moved, or set to bounce.
 
-Press the b key to begin a benchmark. This will render the same 3600 frames and will take 5-10 minutes. Pressing any keys while the benchmark is running will cancel the benchmark. The final result is shown as a frame time stat (see below). Once the benchmark has run the cubes will stop moving. At this point you may screenshot using the shift-p to record the result. Any other key will clear the result.
+Press the b key to begin a benchmark. This will render the same 1800 frames. This would take 30 seconds at 60 FPS, but will probably take more like 5-10 minutes. Pressing any key while the benchmark is running will cancel the benchmark. The final result is shown as a frame time stat (see below). Once the benchmark has run the cubes will stop moving. At this point you may screenshot using shift-p or export to a text file using shift-t. Any other keys will clear the result.
 
 Performance is displayed a few different ways:
 * First is a per-frame measure of TPF, or ticks per frame. One tick corresponds to one screen refresh, generally about 1/60th of a second.
 * Second, a more traditional FPS or frames per second is displayed. This is a mean taken over a 30 frame rolling average plus or minus the standard deviation. 
 * Third is FT or frame time, which is the time taken to generate each frame in milliseconds. This is inversely proportional to FPS and is also displayed as a 30 frame mean plus or minus the standard deviation.
-* Fourth is the benchmark result as mean frame time plus or minus the standard deviation after 3600 frames.
+* Fourth is the benchmark result as mean frame time plus or minus the standard deviation over the entire benchmark run.
 
-The 95th percentile FPS will be approximately the mean minus two standard deviations, and the 99th percentile approximately minus three standard deviations.
+The 95th percentile FPS will be approximately the mean minus two standard deviations, and the 99th percentile will be approximately the mean minus three standard deviations.
 
-Tested under System 7.5.3 on an LC, LC II, LC II, LC 475, and BasiliskII 1.0.0_p20240224. Seems to crash in BasiliskII with a large window size for reasons unknown. Tested under System 7.1 on a SE.
+Tested under System 7.5.3 on an LC, LC II, LC II, LC 475, and BasiliskII 1.0.0_p20240224. Tested under System 7.1 on a Macintosh SE with a Radius Accelerator 25.
 
 ### Key bindings
+
+Capital keys accessed using caps lock or shift plus key, for exmple P is shift-p.
 
 | Key | Action                                    |
 | --- | ----------------------------------------- |
@@ -94,7 +96,7 @@ Tested under System 7.5.3 on an LC, LC II, LC II, LC 475, and BasiliskII 1.0.0_p
 | ret | Quit                                      |
 | esc | Quit                                      |
 | b/B | Run benchmark                             |
-| c/C | Clear (erase) canvas                     |
+| c/C | Clear (erase) canvas                      |
 | f/F | Toggle filled cube faces                  |
 | h/H | On screen help message                    |
 | m/M | Toggle movement                           |
@@ -120,7 +122,9 @@ Tested under System 7.5.3 on an LC, LC II, LC II, LC 475, and BasiliskII 1.0.0_p
 | W/S | -/+ y-velocity of current cube            |
 | Q/E | -/+ z-velocity of current cube            |
 
-The default current cube is cube 1. Clicking outside the window will also quit.
+The default current cube is cube 1. Press other number keys to turn on more cubes and increase benchmark difficulty.
+
+Clicking outside the window will quit.
 
 ### Known issues
 
@@ -140,7 +144,7 @@ Saving screenshots
 
 * Sometimes the background looks a bit pink. Are you in 16-bit ("Thousands of Colors") mode? 16-bit bitmaps are scuffed, with missing green precision, due to Motorola 68000 CPUs being big-endian and BMP needing little-endian (as written at least). What image editors do with the left over bits varies. Try opening in another image editor, e.g., the [GNU Image Manipulation Program](https://www.gimp.org/).
 
-* There's some garbage on the sides of the screenshot. This is expected. Sometimes the buffer we are saving a copy of is larger than what is displayed on screen due to Apple aligning the underlying buffer to memory for faster copies. You may safely ignore these parts of the image.
+* Sometimes there's some garbage along the left and right edges of the screenshot. This is expected and happens when the buffer we are saving a copy of is larger than what is displayed on screen due to Apple memory aligning the for faster copies. You may safely ignore these parts of the image.
 
 * One beep during saving a screenshot indicates an issue selecting the save file.
 

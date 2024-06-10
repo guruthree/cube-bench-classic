@@ -143,6 +143,7 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offSc
 	short fid;
 	char buffer[40]; // for writing out
 	short f1, t1;
+	double mean_fps = 0, std_fps = 0;
 
 	// Open a StandardPutFile for saving (via saveDialog)
 	StandardFileReply myReply;
@@ -229,10 +230,36 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offSc
 	if (completed)
 	{
 		// fps summary
-		// TODO
+
+		// calculate mean fps
+		for (i = 0, mean_fps = 0; i < len; i++)
+		{
+			// frame time to fps
+			mean_fps += (1.0 / (values[i] / 1000.0));
+		}
+		mean_fps = mean_fps / len;
+		tenthsPlace(mean_fps, f1, t1);
+		sprintf(buffer, "FPS (mean),  %hu.%hu\r", f1, t1);
+		writeString(fid, buffer);
+
+		// calculate standard deviation of fps
+		for (i = 0, std_fps = 0; i < len; i++)
+		{
+			// frame time to fps again
+			std_fps += pow((1.0 / (values[i] / 1000.0)) - mean_fps, 2);
+		}
+		std_fps = sqrt(std_fps / len);
+		tenthsPlace(std_fps, f1, t1);
+		sprintf(buffer, "FPS (std dev),  %hu.%hu\r", f1, t1);
+		writeString(fid, buffer);
 
 		// frame time summary
-		// TODO
+		tenthsPlace(mu, f1, t1);
+		sprintf(buffer, "Frame time (mean),  %hu.%hu\r", f1, t1);
+		writeString(fid, buffer);
+		tenthsPlace(sigma, f1, t1);
+		sprintf(buffer, "Frame time (std dev),  %hu.%hu\r", f1, t1);
+		writeString(fid, buffer);
 
 		// write out all individual frame times
 		writeString(fid, "Frame Number, Frame Time\r");

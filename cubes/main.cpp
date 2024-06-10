@@ -1,6 +1,7 @@
 // a lot of safety checks are _not_ being done
 
 #include <QDOffscreen.h>
+#include <time.h>
 
 #include "config.h"
 #include "functions.h"
@@ -108,6 +109,10 @@ void main()
 	char FPUbuffer[30] = "";
 	getCPUandFPU(FPUbuffer, &sys_info);
 
+	// buffer for date and time
+	char TIMEbuffer[25] = "";
+	time_t nt;
+
 	// convert current monitor resolution to window size by shrinking
 	// GetGDevice was crashing on Mac SE + System 7, so disabled
 	//	windowRect = (*(GetGDevice()))->gdRect;
@@ -182,7 +187,7 @@ void main()
 	SetRectRgn(tpfRgn, 0, 0, 160, 15 + 13 * 4 + 1);
 	// screen area where FPU is drawn
 	updateRgn = NewRgn();
-	SetRectRgn(updateRgn, 0, yRes - 40, 80, yRes);
+	SetRectRgn(updateRgn, 0, yRes - 7 - 13 - 5, 160, yRes);
 	// combine in tpfRgn
 	UnionRgn(tpfRgn, updateRgn, tpfRgn);
 	cubeRgn = NewRgn(); // screen space with cubes in it
@@ -497,7 +502,7 @@ void main()
 
 				// save stats to a file
 				case 'T':
-					frametimes_long.writeToFile("\pStats.txt", offScreen, FPUbuffer, activeCubes, wireFrame);
+					frametimes_long.writeToFile("\pStats.txt", offScreen, FPUbuffer, activeCubes, wireFrame, TIMEbuffer);
 #endif // LONG_STATS
 
 				default:
@@ -701,8 +706,13 @@ void main()
 			frametimes_long.write(15 + 13 * 3, "Benchmark");
 		}
 #endif
-		MoveTo(7, yRes - 7);
+		MoveTo(7, yRes - 7 - 13);
 		DrawString((unsigned char *)FPUbuffer);
+		nt = time(NULL);
+		strftime(TIMEbuffer, 30, "%Y/%m/%d %H:%M:%S", localtime(&nt));
+		CtoPstr(TIMEbuffer);
+		MoveTo(7, yRes - 7);
+		DrawString((unsigned char *)TIMEbuffer);
 
 		if (showHelp)
 		{

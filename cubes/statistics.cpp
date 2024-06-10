@@ -133,7 +133,8 @@ void Statistics::write(short startY, const char label[])
 
 // write the stats out to a file
 OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offScreen,
-							  char FPUbuffer[], Boolean *activeCubes, Boolean wireFrame)
+							  char FPUbuffer[], Boolean *activeCubes, Boolean wireFrame,
+							  char TIMEbuffer[])
 {
 	// note file code here based on code from takeScreenshot()
 	// the extra arguments are for writing out system and config info, etc

@@ -230,7 +230,11 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offSc
 
 	if (completed)
 	{
-		// fps summary
+		// time elapsed (how long it took the benchmark to run)
+		// get from mean back to sum by multiplying by # of elements
+		tenthsPlace((mu * len) / 1000.0, f1, t1);
+		sprintf(buffer, "Benchmark duration (s),  %hu.%hu\r", f1, t1);
+		writeString(fid, buffer);
 
 		// calculate mean fps
 		for (i = 0, mean_fps = 0; i < len; i++)
@@ -256,10 +260,10 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offSc
 
 		// frame time summary
 		tenthsPlace(mu, f1, t1);
-		sprintf(buffer, "Frame time (mean),  %hu.%hu\r", f1, t1);
+		sprintf(buffer, "Frame time in ms (mean),  %hu.%hu\r", f1, t1);
 		writeString(fid, buffer);
 		tenthsPlace(sigma, f1, t1);
-		sprintf(buffer, "Frame time (std dev),  %hu.%hu\r", f1, t1);
+		sprintf(buffer, "Frame time in ms (std dev),  %hu.%hu\r", f1, t1);
 		writeString(fid, buffer);
 
 		// write out all individual frame times

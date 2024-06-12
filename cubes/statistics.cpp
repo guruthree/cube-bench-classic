@@ -91,7 +91,9 @@ float Statistics::std()
 	double sum = 0;
 	for (i = 0; i < len; i++)
 	{
-		sum += pow(values[i] - mu, 2);
+		// pow crashes with 68881 support enabled, so * instead
+		// sum += pow(values[i] - mu, 2);
+		sum += (values[i] - mu) * (values[i] - mu);
 	}
 	sigma = sqrt(sum / len);
 	return sigma;
@@ -291,7 +293,8 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offSc
 void tenthsPlace(float in, short &f, short &tenths)
 {
 	// return the value in the tens place
-	f = (short)floor(in);
+	// would normally use floor here, but does not work with 68881 support enabled
+	f = (short)(in);
 	tenths = (short)(10 * (in - f));
 }
 

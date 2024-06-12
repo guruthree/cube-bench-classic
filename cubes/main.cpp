@@ -106,7 +106,7 @@ void main()
 	InitToolbox();
 
 	// determine FPU info
-	char FPUbuffer[30] = "";
+	char FPUbuffer[40] = "";
 	getCPUandFPU(FPUbuffer, &sys_info);
 
 	// buffer for date and time

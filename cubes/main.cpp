@@ -692,6 +692,8 @@ void main()
 				doRotate = false;
 				doMove = false;
 				doBounce = false;
+				// beep - we're done
+				SysBeep(1);
 			}
 		}
 #endif

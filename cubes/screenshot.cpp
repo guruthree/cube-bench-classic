@@ -5,7 +5,7 @@
 
 // save a copy of the offScreen world to a bitmap file
 // default response to errors will be to beep and return
-OSErr takeScreenshot(GWorldPtr offScreen)
+OSErr takeScreenshot(GWorldPtr offScreen, Boolean one_bit)
 {
 	short i; // for looping
 	OSErr err = noErr;
@@ -52,7 +52,7 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 	//	pixmap = offScreen->portPixMap;
 
 	// pixelSize indicates the colour depth (bits per pixel)
-	short pixelSize = (**pixmap).pixelSize;
+	short pixelSize = one_bit ? 1 : (**pixmap).pixelSize;
 	unsigned long myRowBytes = (**pixmap).rowBytes & 0x3fff;
 
 	// the resolution of the back buffer is usually larger than the actually displayed
@@ -73,7 +73,15 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 
 	// how many colours are in the palette (if a palette is used)
 	short paletteSize = 0;
-	if (indexedColor)
+	if (one_bit)
+	{
+		// ctSize comes out as something random on a Mac SE
+		// that isn't correct, so preprogrammed defaults for black & white...
+		// (I think this is because colour tables aren't part of the SE?)
+		paletteSize = 2;
+		indexedColor = true;
+	}
+	else if (indexedColor)
 	{
 		// it seems like BMP expects palette size to be the < type,
 		// similar to for (i = 0; i < paletteSize; i++) so that if the
@@ -171,18 +179,37 @@ OSErr takeScreenshot(GWorldPtr offScreen)
 		write_long(fid, paletteSize);
 	}
 
-	// write out the indexed colour table if that's a thing
-	// (almost everything uses a default table and is indexed colour)
-	// R, G, B, 0x00 for 4 byte alignment
-	// we need to dump the cTable (pointed to by pmTable)
-	for (i = 0; i < paletteSize; i++)
+	if (!one_bit)
 	{
-		// Macs store colour as 16-bit integers (page 97)
-		write_char(fid, (**((**pixmap).pmTable)).ctTable[i].rgb.blue >> 8);
-		write_char(fid, (**((**pixmap).pmTable)).ctTable[i].rgb.green >> 8);
-		write_char(fid, (**((**pixmap).pmTable)).ctTable[i].rgb.red >> 8);
+		// write out the indexed colour table if that's a thing
+		// (almost everything uses a default table and is indexed colour)
+		// R, G, B, 0x00 for 4 byte alignment
+		// we need to dump the cTable (pointed to by pmTable)
+		for (i = 0; i < paletteSize; i++)
+		{
+			// Macs store colour as 16-bit integers (page 97)
+			write_char(fid, (**((**pixmap).pmTable)).ctTable[i].rgb.blue >> 8);
+			write_char(fid, (**((**pixmap).pmTable)).ctTable[i].rgb.green >> 8);
+			write_char(fid, (**((**pixmap).pmTable)).ctTable[i].rgb.red >> 8);
 
-		// padding
+			// padding
+			write_char(fid, 0);
+		}
+	}
+	else
+	{
+		// let's just assume it's black & white as a work around
+
+		// white
+		write_char(fid, 0xFF);
+		write_char(fid, 0xFF);
+		write_char(fid, 0xFF);
+		write_char(fid, 0);
+
+		// black
+		write_char(fid, 0x00);
+		write_char(fid, 0x00);
+		write_char(fid, 0x00);
 		write_char(fid, 0);
 	}
 

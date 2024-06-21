@@ -154,7 +154,8 @@ void main()
 
 	// get colour depth
 	// treat all macs without color quickdraw as black and white
-	one_bit = (*(*onscreenDevice)->gdPMap)->pixelSize == 1 || !sys_info.hasColorQD;
+	// the gdPMap dereference fails on a Mac SE without an accelerator
+	one_bit = !sys_info.hasColorQD || (*(*onscreenDevice)->gdPMap)->pixelSize == 1;
 
 #ifdef USEOFFSCREEN
 	// create back buffer
@@ -449,7 +450,7 @@ void main()
 
 				// screen shot - only caps so it's hard to do on accident
 				case 'P':
-					takeScreenshot(offScreen);
+					takeScreenshot(offScreen, one_bit);
 					// reset timers after coming back from screen shot to not mess up stats
 					break;
 

@@ -184,6 +184,11 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offSc
 	writeString(fid, CUBE_VERSION);
 	write_char(fid, '\r');
 
+	// date & time
+	writeString(fid, "Date & time, ");
+	writeString(fid, TIMEbuffer);
+	write_char(fid, '\r');
+
 	// screen resolution
 	sprintf(buffer, "Resolution, %hu x %hu\r",
 			screenBits.bounds.right - screenBits.bounds.left,

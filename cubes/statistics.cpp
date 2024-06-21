@@ -38,7 +38,12 @@ Statistics::~Statistics()
 // clear all recorded values
 void Statistics::reset()
 {
-	memset(values, len, sizeof(float));
+	// explicit init to 0.0 instead of memset as floating point 0.0 != 0x0
+	short i;
+	for (i = 0; i < len; i++)
+	{
+		values[i] = 0.0;
+	}
 	completed = false;
 	at = 0;
 }
@@ -64,11 +69,6 @@ void Statistics::addValue(float newValue)
 // calculate the mean (average) of recorded values
 float Statistics::mean()
 {
-	// if (completed)
-	// {
-	// 	// no point in updating if we're done
-	// 	return;
-	// }
 	short i;
 	double sum = 0;
 	for (i = 0; i < len; i++)
@@ -82,11 +82,6 @@ float Statistics::mean()
 // calcluate the standard deviation of recorded values, assuming mu is up to date
 float Statistics::std()
 {
-	// if (completed)
-	// {
-	// 	// no point in updating if we're done
-	// 	return;
-	// }
 	short i;
 	double sum = 0;
 	for (i = 0; i < len; i++)

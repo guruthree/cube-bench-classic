@@ -131,7 +131,7 @@ void Statistics::write(short startY, const char label[])
 // write the stats out to a file
 OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offScreen,
 							  char FPUbuffer[], Boolean *activeCubes, Boolean wireFrame,
-							  char TIMEbuffer[])
+							  char TIMEbuffer[], Boolean one_bit)
 {
 	// note file code here based on code from takeScreenshot()
 	// the extra arguments are for writing out system and config info, etc
@@ -141,7 +141,7 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offSc
 	short fid;
 	char buffer[40]; // for writing out
 	short f1, t1;
-	double mean_fps = 0, std_fps = 0;
+	double mean_fps = 0, std_fps = 0, tdbl = 0;
 
 	// Open a StandardPutFile for saving (via saveDialog)
 	StandardFileReply myReply;
@@ -192,8 +192,15 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offSc
 
 	// colour depth (see screenshot.cpp)
 	PixMapHandle pixmap = GetGWorldPixMap(offScreen);
-	sprintf(buffer, "Colour depth, %hu bpp\r", (**(pixmap)).pixelSize);
-	writeString(fid, buffer);
+	if (!one_bit)
+	{
+		sprintf(buffer, "Colour depth, %hu bpp\r", (**(pixmap)).pixelSize);
+	}
+	else
+	{
+		// pixelSize is garbage w/out ColorQD, we know it should be 1 bpp
+		writeString(fid, "Colour depth, 1 bpp\r");
+	}
 
 	// window size
 	sprintf(buffer, "Window size, %hu x %hu\r",
@@ -253,7 +260,9 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offSc
 		for (i = 0, std_fps = 0; i < len; i++)
 		{
 			// frame time to fps again
-			std_fps += pow((1.0 / (values[i] / 1000.0)) - mean_fps, 2);
+			// std_fps += pow((1.0 / (values[i] / 1000.0)) - mean_fps, 2);
+			tdbl = (1.0 / (values[i] / 1000.0)) - mean_fps;
+			std_fps += tdbl * tdbl;
 		}
 		std_fps = sqrt(std_fps / len);
 		tenthsPlace(std_fps, f1, t1);

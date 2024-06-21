@@ -43,7 +43,7 @@ public:
 	// write the stats out to a file
 	OSErr writeToFile(const unsigned char defaultName[], GWorldPtr offScreen,
 					  char FPUbuffer[], Boolean *activeCubes, Boolean wireFrame,
-					  char TIMEbuffer[]);
+					  char TIMEbuffer[], Boolean one_bit);
 };
 
 // need a way to show decimals on the SE, which doesn't agree with %0.1f

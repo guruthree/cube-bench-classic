@@ -106,11 +106,11 @@ void main()
 	InitToolbox();
 
 	// determine FPU info
-	char FPUbuffer[40] = "";
+	char FPUbuffer[64] = "";
 	getCPUandFPU(FPUbuffer, &sys_info);
 
 	// buffer for date and time
-	char TIMEbuffer[25] = "";
+	char TIMEbuffer[50] = "";
 	time_t nt;
 
 	// convert current monitor resolution to window size by shrinking

@@ -194,7 +194,8 @@ void main()
 	cubeRgn = NewRgn(); // screen space with cubes in it
 	// screen space where help is drawn
 	helpRgn = NewRgn();
-	SetRectRgn(helpRgn, xRes - HELP_OFFSET, 0, xRes, 15 + 13 * 14 + 1);
+	// 13 = row height * X lines in the help message
+	SetRectRgn(helpRgn, xRes - HELP_OFFSET, 0, xRes, 2 + 13 * 16 + 2);
 
 	// put all the cubes in their programmed positions
 	resetCubes(cubes, activeCubes, xRes, yRes);
@@ -635,6 +636,7 @@ void main()
 			}
 		}
 
+		// bounce cubes off of each other
 		if (doBounce)
 		{
 			for (i = 0; i < NUM_CUBES; i++)
@@ -643,14 +645,12 @@ void main()
 				{
 					if (activeCubes[i] && activeCubes[j])
 					{
-						// bounce if:
-						// cubes are close to each other
-						// cubes are headed towards each other
-						// based on screen coordinates
-						// inverting velocities
-
-						// TODO bounce code
-						// sum(centre.^2 - centre.^2) < 100?
+						// sum(centre - centre).^2 - size/2 - size/2
+						if (cubes[i]->dist(cubes[j]) < 2.5)
+						{
+							cubes[i]->velocity = cubes[i]->velocity.scale(-1.0);
+							cubes[j]->velocity = cubes[j]->velocity.scale(-1.0);
+						}
 					}
 				}
 			}

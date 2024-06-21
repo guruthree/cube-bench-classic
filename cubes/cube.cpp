@@ -274,3 +274,24 @@ float Cube::getZ()
 {
 	return centre.z;
 }
+
+// distance to another cube
+float Cube::dist(Cube *other)
+{
+	// d = x - y
+	Vector3 d = centre.subtract(other->centre);
+	// s = sum(d .^ 2)
+	float s = d.dotProduct(d);
+	s = sqrt(s);
+	// take into account 'radius' of the cube
+	// diameter * sqrt(2) to make it circular
+	// divide by two to make it radius
+	// simplify and just multiply by 0.7071
+	s -= 0.7071 * size;
+	s -= 0.7071 * other->size;
+	if (s < 0)
+	{
+		s = 0;
+	}
+	return s;
+}

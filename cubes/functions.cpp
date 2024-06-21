@@ -43,7 +43,7 @@ void writeHelp(short startX)
 	MoveTo(startX, startY += 13);
 	DrawString("\p`/esc/ret: quit");
 	MoveTo(startX, startY += 13);
-	DrawString("\p`b: start benchmark");
+	DrawString("\pb: start benchmark");
 	MoveTo(startX, startY += 13);
 	DrawString("\pn/m: toggle rotate/move");
 	MoveTo(startX, startY += 13); // #5
@@ -56,19 +56,21 @@ void writeHelp(short startX)
 	DrawString("\pr/R: reset/randomise cubes");
 	MoveTo(startX, startY += 13);
 	DrawString("\pv/c: invert/erase canvas");
-	MoveTo(startX, startY += 13);
-	DrawString("\pf/-/+: fill/resize cube");
 	MoveTo(startX, startY += 13); // #10
+	DrawString("\pf/-/+: fill/resize cube");
+	MoveTo(startX, startY += 13);
 	DrawString("\p1-0: toggle cube");
+	MoveTo(startX, startY += 13);
+	DrawString("\px: toggle bounce");
 	MoveTo(startX, startY += 13);
 	DrawString("\pjlikuo: rotation");
 	MoveTo(startX, startY += 13);
 	DrawString("\pJLIKUO: rotation speed");
-	MoveTo(startX, startY += 13);
+	MoveTo(startX, startY += 13); // # 15
 	DrawString("\padwsqe: move");
 	MoveTo(startX, startY += 13);
 	DrawString("\pADWSQE: move speed");
-	// 15 lines total
+	// 16 lines total
 }
 
 // generate random float, inclusive

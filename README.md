@@ -88,7 +88,7 @@ Tested under System 7.5.3 on an LC, LC II, LC II, LC 475, and BasiliskII 1.0.0_p
 
 ### Key bindings
 
-Capital keys accessed using caps lock or shift plus key, for exmple P is shift-p.
+Capital keys accessed using caps lock or shift plus key, for example P is shift-p.
 
 | Key | Action                                    |
 | --- | ----------------------------------------- |
@@ -101,6 +101,7 @@ Capital keys accessed using caps lock or shift plus key, for exmple P is shift-p
 | h/H | On screen help message                    |
 | m/M | Toggle movement                           |
 | n/N | Toggle rotation                           |
+| x/X | Toggle cubes bouncing                     |
 | P   | Save a screenshot to a BMP image          |
 | T   | Save benchmark results to a text file     |
 | r   | reset all active cubes                    |

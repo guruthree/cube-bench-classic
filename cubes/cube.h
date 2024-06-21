@@ -82,6 +82,9 @@ public:
 
 	// z-coordinate of the cube (1000-z) is the distance away from the camera
 	float getZ();
+
+	// distance to another cube
+	float dist(Cube *other);
 };
 
 #endif

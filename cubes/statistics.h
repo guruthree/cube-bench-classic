@@ -47,7 +47,7 @@ public:
 };
 
 // need a way to show decimals on the SE, which doesn't agree with %0.1f
-void tenthsPlace(float in, short &f, short &tenths);
+void tenthsPlace(double in, long &ones, long &tenths);
 
 // display the Ticks Per Frame (1 tick ~= 1/60 s)
 void writeTPF(unsigned char TPF);

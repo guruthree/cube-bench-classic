@@ -109,7 +109,7 @@ void Statistics::write(short startY, const char label[])
 		return;
 	}
 
-	short f1, t1, f2, t2;
+	long f1, t1, f2, t2;
 
 	// run calculations
 	if (!completed)
@@ -140,7 +140,7 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offSc
 	OSErr err = noErr;
 	short fid;
 	char buffer[40]; // for writing out
-	short f1, t1;
+	long f1, t1;
 	double mean_fps = 0, std_fps = 0, tdbl = 0;
 
 	// Open a StandardPutFile for saving (via saveDialog)
@@ -299,12 +299,13 @@ OSErr Statistics::writeToFile(const unsigned char defaultName[], GWorldPtr offSc
 }
 
 // need a way to show decimals on the SE, which doesn't agree with %0.1f
-void tenthsPlace(float in, short &f, short &tenths)
+void tenthsPlace(double in, long &ones, long &tenths)
 {
 	// return the value in the tens place
 	// would normally use floor here, but does not work with 68881 support enabled
-	f = (short)(in);
-	tenths = (short)(10 * (in - f));
+	ones = in;
+	// breaks if 10*x > 65535, so we use long
+	tenths = 10 * (in - ones);
 }
 
 // display the Ticks Per Frame (1 tick ~= 1/60 s)

@@ -25,13 +25,11 @@ void InitToolbox()
 }
 
 // http://preserve.mactech.com/articles/develop/issue_26/minow.html
-float MicrosecondToFloatMillis(const UnsignedWide *time)
+double MicrosecondToMillis(const UnsignedWide *time)
 {
-	// this needs to be a double, so we'll ignore the hi bits and just
-	// kind of assume wrapping works OK as we only need time differences
-	// return ((((float)time->hi) * 4294967296.0) + time->lo) / 1000.0;
-	return ((long)(time->lo)) / 1000.0;
-///	return (((long)time->lo) / 1000.0);//(time->lo);// / 1000.0;
+	// this needs to be a double - I tried just using lo and float but
+	// I think it caused wrapping problems so yeah - double
+	return ((((double)time->hi) * 4294967296.0) + time->lo) / 1000.0;
 }
 
 // display a help message

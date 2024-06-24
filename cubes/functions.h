@@ -18,7 +18,7 @@
 void InitToolbox();
 
 // http://preserve.mactech.com/articles/develop/issue_26/minow.html
-float MicrosecondToFloatMillis(const UnsignedWide *time);
+double MicrosecondToMillis(const UnsignedWide *time);
 
 // display a help message
 void writeHelp(short startX);

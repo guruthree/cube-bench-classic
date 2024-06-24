@@ -89,8 +89,8 @@ void main()
 	// https://developer.apple.com/library/archive/documentation/mac/pdf/Processes/Time_Manager.pdf
 	UnsignedWide currentTimeW;
 	Microseconds(&currentTimeW);
-	float lastTime = MicrosecondToFloatMillis(&currentTimeW);
-	float currentTime = lastTime;
+	double lastTime = MicrosecondToMillis(&currentTimeW);
+	double currentTime = lastTime;
 	Statistics fps = Statistics(SHORT_STATS, false);
 	Statistics frametimes = Statistics(SHORT_STATS, false);
 #ifdef LONG_STATS
@@ -755,7 +755,7 @@ void main()
 		// benchmark stuff
 		TPF = TickCount() - last;
 		Microseconds(&currentTimeW);
-		currentTime = MicrosecondToFloatMillis(&currentTimeW);
+		currentTime = MicrosecondToMillis(&currentTimeW);
 		timeElapsed = currentTime - lastTime;
 		lastTime = currentTime;
 
